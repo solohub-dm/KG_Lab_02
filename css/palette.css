@@ -1,0 +1,27 @@
+:root {
+  --transperent: rgba(0, 0, 0, 0);
+  --shadow: #20222bcb;
+
+  --white-dark: rgb(184, 184, 184);
+  --white-normal: rgb(216, 216, 216);
+  --white-accent: white;
+
+  /* --darkblue-bright: #40434b;
+  --darkblue-normal: #2c2e36;
+  --darkblue-accent: #2d2f38; */
+
+  /* --darkblue-bright: #464241;
+  --darkblue-normal: #2b2929;
+  --darkblue-accent: #1f1d1d; */
+
+  --darkblue-bright: #59575c;
+  --darkblue-normal: #2e2e31;
+  --darkblue-accent: #212123;
+
+  /* --darkblue-bright: #403f41;
+  --darkblue-normal: #212123;
+  --darkblue-accent: #18181a; */
+
+  --font-decorative: Cambria, Cochin, Georgia, serif;
+  --font-informative: "Arial Narrow", Arial, sans-serif;
+}
