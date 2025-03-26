@@ -53,21 +53,29 @@ const canvasBuffer = document.createElement("canvas");
 const сtxBuffer = canvasBuffer.getContext("2d");
 
 let coefM = 2;
+
+const resizeObserver = new ResizeObserver(() => {
+  updateCanvasSize();
+  drawSystem(canvasMain, ctx);
+});
+
+resizeObserver.observe(canvasMain);
+
+function updateCanvasSize() {
+  sizeR = new Pair(
+    canvasMain.offsetWidth, 
+    canvasMain.offsetHeight
+  );
+  sizeM = sizeR.mulO(coefM);
+  canvasMain.width = sizeM.x;
+  canvasMain.height = sizeM.y;
+}
+
 window.addEventListener("load", () => {
 
-
-    sizeR = new Pair(
-        canvasMain.offsetWidth, 
-        canvasMain.offsetHeight
-    );
-    sizeM = sizeR.mulO(coefM);
-    canvasMain.width = sizeM.x;
-    canvasMain.height = sizeM.y;
-
-    canvasBuffer.width = sizeM.x;
-    canvasBuffer.height = sizeM.y;
-
-    drawSystem();
+    resetColors();
+    updateCanvasSize();
+    drawSystem(canvasMain, ctx);
 });
 
 
@@ -105,7 +113,7 @@ document.addEventListener("keydown", (event) => {
     event.key === "с" || event.key === "С"
   ) {
     dragOffset = new Pair(0, 0);
-    drawSystem();
+    drawSystem(canvasMain, ctx);
   }
 });
 
@@ -118,7 +126,7 @@ document.addEventListener("keydown", (event) => {
     curDivsNumbr = 0;
     curDivsStep = (maxDivsStep + minDivsStep) / 2;
     curDivsValue = 1;
-    drawSystem();
+    drawSystem(canvasMain, ctx);
   }
 });
 
@@ -162,7 +170,7 @@ canvasMain.addEventListener("mousemove", (event) => {
       event.clientX, 
       event.clientY
     );
-    drawSystem();
+    drawSystem(canvasMain, ctx);
   }
 });
 
@@ -202,7 +210,7 @@ canvasMain.addEventListener("wheel", (event) => {
     // Прокрутка вгору → курсор "zoomin"
     
 
-    if (curDivsValue <= minDivsValue && curDivsStep === minDivsStep) return;
+    if (curDivsValue <= minDivsValue && curDivsStep === maxDivsStep) return;
     canvasMain.style.cursor = "zoom-in";
     if (isCtrlPressed) {
       reSizeSystem(false, true);
@@ -216,7 +224,7 @@ canvasMain.addEventListener("wheel", (event) => {
   } else {
     // Прокрутка вниз → курсор "zoomout"
 
-    if (curDivsValue >= maxDivsValue && curDivsStep === maxDivsStep) return;
+    if (curDivsValue >= maxDivsValue && curDivsStep === minDivsStep) return;
     canvasMain.style.cursor = "zoom-out";
 
     if (isCtrlPressed) {
@@ -327,7 +335,7 @@ function reSizeSystem(isScaleDown, isCentred) {
 // console.log("curOff:        ", roundAfterPoint(curOff.x, 2) + " " + roundAfterPoint(curOff.y, 2));
 // console.log("dragOffset:", dragOffset);
 
-  drawSystem();
+  drawSystem(canvasMain, ctx);
 }
 
 function calcCurNum(midlDrag, midl) {
@@ -360,9 +368,14 @@ function toCtxX() {
 
 
 
-function drawSystem() {
+function drawSystem(canvas, ctx) {
 
-  сtxBuffer.clearRect(0, 0, canvasBuffer.width, canvasBuffer.height);
+  canvasBuffer.width = canvas.width;
+  canvasBuffer.height = canvas.height;
+
+  сtxBuffer.clearRect(0, 0, canvas.width, canvas.height);
+  
+
 
   midl = new Pair(
     Math.floor(sizeM.x / 2),
@@ -600,7 +613,7 @@ function drawSystem() {
   } 
   сtxBuffer.stroke();  
 
-  ctx.clearRect(0, 0, canvasMain.width, canvasMain.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(canvasBuffer, 0, 0);
 }
 

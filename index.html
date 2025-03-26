@@ -12,97 +12,126 @@
 </head>
 <body>
     <div class="main-wrapper">
-        <div class="projects-panel">
-            <div class="control-button" id="control-button-projects">
+        <div class="side-panel">
+            <div class="control-button side passive" id="control-button-projects">
                 <img src="./img/projects.png" alt="view projects" class="icon-button" id="icon-button-projects">
             </div>
+            <div class="control-button side passive" id="control-button-pentool">
+                <img src="./img/pentool.png" alt="open pentool" class="icon-button">
+            </div>
+            <div>
+                <div class="control-button side passive" id="control-button-menu">
+                    <img src="./img/menu.png" alt="open menu" class="icon-button">
+                </div>
+                <div class="side-panel-menu" id="side-panel-menu">
+                    <div class="control-button side" id="control-button-recursive">
+                        <img src="./img/recursive.png" alt="open pentool" class="icon-button">
+                    </div>
+                    <div class="control-button side" id="control-button-points">
+                        <img src="./img/points.png" alt="open pentool" class="icon-button">
+                    </div>
+                    <div class="control-button side" id="control-button-polynom">
+                        <img src="./img/polynom.png" alt="open pentool" class="icon-button">
+                    </div>
+                    <div class="control-button side" id="control-button-pallete">
+                        <img src="./img/pallete.png" alt="open pentool" class="icon-button">
+                    </div>
+                </div>
+            </div>
             
+
         </div>
 
         <div class="control-panel">
-            <!-- <div class="control-button" id="control-button-back">
-                <p class="text-button">Повернутися</p>
-                <img src="./img/back.png" alt="back to project" class="icon-button">
-            </div> -->
-            <div class="control-button" id="control-button-create">
-                <p class="text-button">Створити проект</p>
-                <img src="./img/add.png" alt="create project" class="icon-button">
-            </div>
-            <div class="control-button" id="control-button-pentool">
-                <p class="text-button">Перо</p>
-                <img src="./img/pentool.png" alt="pen tool" class="icon-button">
-            </div>
-            <div class="control-button" id="control-button-menu">
-                <p class="text-button">Назад у меню</p>
-                <img src="./img/menu.png" alt="menu" class="icon-button">
-            </div>
-            
+
 
             <div class="control-main" id="control-main-projects">
-                <div class="menu-item">
-                    <div class="line-block">
-                        <input type="text" class="project-name" value="asdasd">
-                        <img src="./img/delete.png" alt="delete project" class="project-icon">
-                    </div>
-                    <canvas class="canvas-preview"></canvas>
+                <div class="control-title">
+                    <p class="text-button">Проекти</p>
+                </div>
+                <div class="control-body" id="control-body-projects">
+                </div>
+                <div class="control-button control" id="control-button-create">
+                    <p class="text-button">Створити проект</p>
+                    <img src="./img/add.png" alt="create project" class="icon-button">
                 </div>
             </div>
 
             <div class="control-main" id="control-main-menu">
-                <div class="menu-item">
-                    <p class="text-item-head">Рекурсивна побудова</p>
-                    <p class="text-item-body">Анімація побудови кривої Без'є рекурсивнитм методом.</p>
+                <div class="control-title">
+                    <p class="text-button">Меню</p>
                 </div>
-                <div class="menu-item">
-                    <p class="text-item-head">Аналіз згладжування</p>
-                    <p class="text-item-body">Обчислення значень заданої користувачем кілкості точок 
-                        обраного відразка ламаної та відповідних точок кривої на цьому ж діапозоні абсциси.</p>
-                </div>
-                <div class="menu-item">
-                    <p class="text-item-head">Обчислення полінома</p>
-                    <p class="text-item-body">Обчислення значень поліномів Берштейна із заданим користувачем 
-                        кроком точок для обраног сегмента кривої.</p>
-                </div>
-                <div class="menu-item">
-                    <p class="text-item-head">Налаштування пілітри</p>
-                    <p class="text-item-body">Вибір кольору для різних елементів кривої Безьє.</p>
+                <div class="control-body" id="control-body-menu">
+                    <div class="menu-item">
+                        <p class="text-item-head">Рекурсивна побудова</p>
+                        <p class="text-item-body">Анімація побудови кривої Без'є рекурсивнитм методом.</p>
+                    </div>
+                    <div class="menu-item">
+                        <p class="text-item-head">Аналіз згладжування</p>
+                        <p class="text-item-body">Обчислення значень заданої користувачем кілкості точок 
+                            обраного відразка ламаної та відповідних точок кривої на цьому ж діапозоні абсциси.</p>
+                    </div>
+                    <div class="menu-item">
+                        <p class="text-item-head">Обчислення полінома</p>
+                        <p class="text-item-body">Обчислення значень поліномів Берштейна із заданим користувачем 
+                            кроком точок для обраног сегмента кривої.</p>
+                    </div>
+                    <div class="menu-item">
+                        <p class="text-item-head">Налаштування палітри</p>
+                        <p class="text-item-body">Вибір кольору для різних елементів кривої Безьє.</p>
+                    </div>
                 </div>
             </div>
 
             <div class="control-main" id="control-main-pentool">
-                <div class="line-block start">
-                    <img src="./img/base.png" alt="base point" class="icon-base">
-                    <p class="text-item-info"> - опорна точка</p>
+                <div class="control-title">
+                    <p class="text-button">Перо</p>
                 </div>
-                <div class="line-block start">
-                    <img src="./img/control.png" alt="base point" class="icon-base">
-                    <p class="text-item-info"> - керуюча точка</p>
-                </div>
-
-                <div class="point-panel" id="point-panel">
-                    <div class="point-item">
+                <div class="control-body">
+                    <div class="line-block start">
                         <img src="./img/base.png" alt="base point" class="icon-base">
-                        <p class="text-item-info">X: <span></span></p>
-                        <p class="text-item-info">Y: <span></span></p>
+                        <p class="text-item-info"> - опорна точка</p>
                     </div>
-                    <div class="point-item">
+                    <div class="line-block start">
                         <img src="./img/control.png" alt="base point" class="icon-base">
-                        <p class="text-item-info">X: <span></span></p>
-                        <p class="text-item-info">Y: <span></span></p>
+                        <p class="text-item-info"> - керуюча точка</p>
                     </div>
+                    <br>
+                    <div class="point-panel" id="point-panel">
+                        <div class="point-item">
+                            <img src="./img/base.png" alt="base point" class="icon-base">
+                            <p class="text-item-info">X: <span></span></p>
+                            <p class="text-item-info">Y: <span></span></p>
+                        </div>
+                        <div class="point-item">
+                            <img src="./img/control.png" alt="base point" class="icon-base">
+                            <p class="text-item-info">X: <span></span></p>
+                            <p class="text-item-info">Y: <span></span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-button control" id="control-button-delete">
+                    <p class="text-button">Видалити криву</p>
+                    <img src="./img/delete.png" alt="delete all points" class="icon-button" id="icon-button-delete">
                 </div>
             </div>
 
-            <div class="control-button" id="control-button-delete">
-                <p class="text-button">Видалити криву</p>
-                <img src="./img/delete.png" alt="delete all points" class="icon-button" id="icon-button-delete">
-            </div>
+
 
             <div class="control-main" id="control-main-recursive">
-                <br>
+                <div class="control-title">
+                    <p class="text-button">Рекурсивна побудова</p>
+                </div>
+                <div class="control-body">
+                    <br>
                 <p class="text-item-info">t - значення для поточного сегмента</p>
                 <p class="text-item-info">s - номер поточного сегмента</p>
-                <div class="control-button" id="control-button-start">
+                <br>
+                <div class="line-block">
+                    <label class="text-item-info" for="step-t-size">Крок параметра t:</label>
+                    <input type="number" name="step-t-size" id="step-t-size">                    
+                </div>
+                <div class="control-button control" id="control-button-start">
                     <p class="text-button">Запустити</p>
                     <img src="./img/start.png" alt="start animation" class="icon-button">
                 </div>
@@ -111,11 +140,15 @@
                 <div class="progress-bar" id="progress-bar-t"></div>
                 <p class="text-progress">s: <span id="text-cur-segment">01/12</span></p>
                 <div class="progress-bar" id="progress-bar-s"></div>
-
+                </div>
             </div>
 
             <div class="control-main" id="control-main-polynom">
-                <br>
+                <div class="control-title">
+                    <p class="text-button">Аналіз згладжування</p>
+                </div>
+                <div class="control-body">
+                    <br>
                 <div class="line-block">
                     <label class="text-item-info" for="step-size">Кількість точок:</label>
                     <input type="number" name="step-size" id="step-size">                    
@@ -123,7 +156,7 @@
                 <!-- <div class="panel">
                     <p class="text-item-body" id="choose-segment-polynom">Оберіть сегмент</p>
                 </div> -->
-                <div class="control-button" id="control-button-polynom">
+                <div class="control-button control" id="control-button-polynom">
                     <p class="text-button">Обчислити</p>
                     <img src="./img/start.png" alt="start animation" class="icon-button">
                 </div>
@@ -142,10 +175,15 @@
 
                     </tbody>
                 </table>
+                </div>
             </div>
 
             <div class="control-main" id="control-main-points">
-                <br>
+                <div class="control-title">
+                    <p class="text-button">Обчилення полінома</p>
+                </div>
+                <div class="control-body">
+                    <br>
                 <div class="line-block">
                     <label class="text-item-info" for="points-count">Кількість точок:</label>
                     <input type="number" name="points-count" id="points-count">                    
@@ -153,7 +191,7 @@
                 <!-- <div class="panel">
                     <p class="text-item-body" id="choose-segment-points">Оберіть сегмент</p>
                 </div> -->
-                <div class="control-button" id="control-button-points">
+                <div class="control-button control" id="control-button-points">
                     <p class="text-button">Обчислити</p>
                     <img src="./img/start.png" alt="start animation" class="icon-button">
                 </div>
@@ -170,39 +208,49 @@
 
                     </tbody>
                 </table>
+                </div>
             </div>
             <div class="control-main" id="control-main-pallete">
-                <br>
-                <p class="text-progress">Кольори кривої:</p>
-                <div class="line-block">
-                    <label class="text-item-info" for="curve-color">Крива:</label>
-                    <input type="color" name="curve-color" id="curve-color">                    
+                <div class="control-title">
+                    <p class="text-button">Палітра кольорів</p>
                 </div>
-                <br>
-                <p class="text-progress">Кольори точок:</p>
-                <div class="line-block">
-                    <label class="text-item-info" for="base-points-color">Опорні точки:</label>
-                    <input type="color" name="base-points-color" id="base-points-color">                    
+                <div class="control-body" id="control-body-pallete">
+                    <br>
+                    <p class="text-progress">Кольори кривої:</p>
+                    <hr>
+                    <div class="line-block">
+                        <label class="text-item-info" for="curve-color">Крива:</label>
+                        <input type="color" name="curve-color" id="curve-color">                    
+                    </div>
+                    <br>
+                    <p class="text-progress">Кольори точок:</p>
+                    <hr>
+                    <div class="line-block">
+                        <label class="text-item-info" for="base-points-color">Опорні точки:</label>
+                        <input type="color" name="base-points-color" id="base-points-color">                    
+                    </div>
+                    <div class="line-block">
+                        <label class="text-item-info" for="control-points-color">Керуючі точки:</label>
+                        <input type="color" name="control-points-color" id="control-points-color">                    
+                    </div>
+                    <br>
+                    <p class="text-progress">Кольори ламаної:</p>
+                    <hr>
+                    <div class="line-block">
+                        <label class="text-item-info" for="tangent-color">Дотичні відрізки:</label>
+                        <input type="color" name="tangent-color" id="tangent-color">                    
+                    </div>
+                    <div class="line-block">
+                        <label class="text-item-info" for="non-tangent-color">Недотичні відрізки:</label>
+                        <input type="color" name="non-tangent-color" id="non-tangent-color">                    
+                    </div>
                 </div>
-                <div class="line-block">
-                    <label class="text-item-info" for="control-points-color">Керуючі точки:</label>
-                    <input type="color" name="control-points-color" id="control-points-color">                    
-                </div>
-                <br>
-                <p class="text-progress">Кольори характериcтичної ламаної:</p>
-                <div class="line-block">
-                    <label class="text-item-info" for="tangent-color">Дотичні відрізки:</label>
-                    <input type="color" name="tangent-color" id="tangent-color">                    
-                </div>
-                <div class="line-block">
-                    <label class="text-item-info" for="non-tangent-color">Недотичні відрізки:</label>
-                    <input type="color" name="non-tangent-color" id="non-tangent-color">                    
+                <div class="control-button control" id="control-button-reset">
+                    <p class="text-button">Скинути зміни</p>
+                    <img src="./img/clear.png" alt="reset changes" class="icon-button">
                 </div>
             </div>
-            <div class="control-button" id="control-button-reset">
-                <p class="text-button">Скинути зміни</p>
-                <img src="./img/clear.png" alt="reset changes" class="icon-button">
-            </div>
+
         </div>
   
 
@@ -223,5 +271,6 @@
 
 <script src="./js/main.js"></script>
 <script src="./js/system.js"></script>
+<script src="./js/curve.js"></script>
 
 </html>
