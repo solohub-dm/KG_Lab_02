@@ -11,6 +11,36 @@
   text-decoration: none;
 }
 
+
+
+#table-panel-polynom, 
+.point-panel.scroll {
+  padding-right: 4px;
+  height: 100%
+}
+
+.scroll {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scroll::-webkit-scrollbar-track {
+  background: var(--darkblue-bright); 
+}
+
+.scroll::-webkit-scrollbar-thumb {
+  background: var(--white-dark); 
+  border-radius: 3px;
+}
+.scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--white-normal);
+}
+
 .main-wrapper {
   background-color: var(--darkblue-bright);
 
@@ -125,6 +155,18 @@
   flex-direction: column;
 }
 
+#control-main-pentool .line-block.start {
+  padding-left: 14px;
+}
+
+#control-main-polynom .control-title p {
+  font-size: 22px;
+}
+
+/* .control-main:not(#control-main-points) {
+  display: none;
+} */
+
 .control-main:not(#control-main-projects) {
   display: none;
 }
@@ -158,16 +200,21 @@
   cursor: pointer;
 }
 
-
+.spm {
+  height: auto;
+  min-width: 53px;
+  max-width: 53px;
+}
 .control-button.active {
   background-color: #4f7c8a;
   pointer-events: none;
 }
 
 .control-button.passive {
-  cursor: default;
+  display: none;
+  /* cursor: default;
   pointer-events: none;
-  opacity: 0.65;
+  opacity: 0.65; */
 }
 
 
@@ -276,6 +323,10 @@
   display: flex;
   flex-direction: column;
   justify-content: start;
+
+}
+
+.control-body:not(#control-body-projects) {
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -283,7 +334,7 @@
 .canvas-panel {
   height: 100%;
   width: 100%;
-
+  
   padding: 25px 75px 50px;
 
   display: flex;
@@ -291,22 +342,67 @@
   position: relative;
 }
 
-.canvas-main {
-  background-color: var(--white-accent);
-
-  width: 100%;
+.canvas-panel {
   height: 100%;
+  width: 100%;
+  padding: 25px 50px 50px;
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
+.canvas-main {
+  width: calc(100% - 100px);
+  height: calc(100% - 75px);
+  position: absolute;
+  top: 25px;
+  left: 50px;
+}
+
+#canvas-main {
+  background-color: var(--white-accent);
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.error-message {
+  font-size: 16px;
+  line-height: 16px;
+  height: 22px;
+  color: rgb(218, 72, 72);
+}
+
+.progress {
+  height: 100%;
+  width: 0;
+  background-color: aliceblue;
+  border-radius: 4px;
+}
+
+#progress-s {
+  transition: all 0.5s ease;
 }
 
 input {
+  
   width: 64px;
   height: 26px;
   background-color: var(--white-normal);
   border: 3px solid var(--darkblue-normal);
   border-radius: 6px;
   margin-right: 4px;
+  padding-left: 4px;
+
+  font-weight: bold;
+
 }
 input[type="color"] {
+  padding-left: 0px;
+
   height: 28px;
 }
 
@@ -341,20 +437,44 @@ th {
   letter-spacing: 1px;
   font-weight: bold;
 }
-td {
-  color: var(--darkblue-normal);
-  height: 33px;
 
-  font-size: 18px;
+
+tbody tr td:first-child {
+
+  color: var(--white-normal);
+  background-color: var(--darkblue-normal);
+}
+
+td {
+  color: var(--white-normal);
+  height: 30px;
+
+  font-size: 15px;
   letter-spacing: 0.75px;
   font-weight: bold;
+  white-space: pre-wrap;
 }
 
 #table-polynom th {
   width: 20%;
 }
-#table-points th {
-  width: 33%;
+
+#table-points td {
+  vertical-align: bottom; 
+  line-height: 20px;
+}
+
+#table-points th:nth-child(2) {
+  width: 37.5%;
+}
+
+#table-points th:first-child {
+  width: 25%;
+}
+
+#table-points td:not(:first-child) {
+  text-align: end;
+  padding-right: 30px;
 }
 
 .text-button {
@@ -377,6 +497,12 @@ hr {
 }
 .control-body .control-button.control:hover .icon-button {
   opacity: 1;
+}
+
+thead {
+  position: sticky;
+  top: 0px;
+  z-index: 1;
 }
 
 .text-item-head {
@@ -404,8 +530,9 @@ hr {
   margin-top: 12px;
   background-color: var(--white-accent);
   width: 100%;
-  height: 165px;
+  height: 145px;
 }
+
 
 .project-name {
   width: 100%;
@@ -470,7 +597,6 @@ hr {
 
 .line-block {
   width: 100%;
-  /* padding-left: 14px; */
 
   display: flex;
   flex-direction: row;
@@ -489,8 +615,10 @@ hr {
   justify-content: flex-start;
 }
 
-
-
+#table-point-body tr td {
+  text-align: center;
+  text-justify: start
+}
 
 
 

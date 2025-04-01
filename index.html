@@ -19,7 +19,7 @@
             <div class="control-button side passive" id="control-button-pentool">
                 <img src="./img/pentool.png" alt="open pentool" class="icon-button">
             </div>
-            <div>
+            <div class="spm">
                 <div class="control-button side passive" id="control-button-menu">
                     <img src="./img/menu.png" alt="open menu" class="icon-button">
                 </div>
@@ -49,7 +49,7 @@
                 <div class="control-title">
                     <p class="text-button">Проекти</p>
                 </div>
-                <div class="control-body" id="control-body-projects">
+                <div class="control-body scroll" id="control-body-projects">
                 </div>
                 <div class="control-button control" id="control-button-create">
                     <p class="text-button">Створити проект</p>
@@ -89,25 +89,21 @@
                 </div>
                 <div class="control-body">
                     <div class="line-block start">
-                        <img src="./img/base.png" alt="base point" class="icon-base">
-                        <p class="text-item-info"> - опорна точка</p>
+                        <img src="./img/base.png" alt="base soft point" class="icon-base">
+                        <p class="text-item-info"> - опорна (гладка) точка</p>
+                    </div>
+                    <div class="line-block start">
+                        <img src="./img/base_hard.png" alt="base hard point" class="icon-base">
+                        <p class="text-item-info"> - опорна (кутова) точка</p>
                     </div>
                     <div class="line-block start">
                         <img src="./img/control.png" alt="base point" class="icon-base">
                         <p class="text-item-info"> - керуюча точка</p>
                     </div>
-                    <br>
-                    <div class="point-panel" id="point-panel">
-                        <div class="point-item">
-                            <img src="./img/base.png" alt="base point" class="icon-base">
-                            <p class="text-item-info">X: <span></span></p>
-                            <p class="text-item-info">Y: <span></span></p>
-                        </div>
-                        <div class="point-item">
-                            <img src="./img/control.png" alt="base point" class="icon-base">
-                            <p class="text-item-info">X: <span></span></p>
-                            <p class="text-item-info">Y: <span></span></p>
-                        </div>
+
+    
+                    <div class="point-panel scroll" id="point-panel">
+                        
                     </div>
                 </div>
                 <div class="control-button control" id="control-button-delete">
@@ -122,92 +118,103 @@
                 <div class="control-title">
                     <p class="text-button">Рекурсивна побудова</p>
                 </div>
+                <br>
                 <div class="control-body">
-                    <br>
                 <p class="text-item-info">t - значення для поточного сегмента</p>
                 <p class="text-item-info">s - номер поточного сегмента</p>
-                <br>
+                <p class="error-message" id="error-message-recurcive"></p>
                 <div class="line-block">
                     <label class="text-item-info" for="step-t-size">Крок параметра t:</label>
-                    <input type="number" name="step-t-size" id="step-t-size">                    
+                    <input type="number" name="step-t-size" id="step-t-size-recursive">                    
                 </div>
-                <div class="control-button control" id="control-button-start">
+                <div class="control-button control" id="control-button-start-recursive">
                     <p class="text-button">Запустити</p>
                     <img src="./img/start.png" alt="start animation" class="icon-button">
                 </div>
                 <br>
-                <p class="text-progress">t: <span id="text-cur-t-value">0.52</span></p>
-                <div class="progress-bar" id="progress-bar-t"></div>
-                <p class="text-progress">s: <span id="text-cur-segment">01/12</span></p>
-                <div class="progress-bar" id="progress-bar-s"></div>
+                <p class="text-progress">t: <span id="text-cur-t-value">0.00</span></p>
+                <div class="progress-bar" id="progress-bar-t">
+                    <div class="progress" id="progress-t"></div>
+                </div>
+                <p class="text-progress">s: <span id="text-cur-segment">0/0</span></p>
+                <div class="progress-bar" id="progress-bar-s">
+                    <div class="progress" id="progress-s"></div>
+                </div>
                 </div>
             </div>
 
             <div class="control-main" id="control-main-polynom">
                 <div class="control-title">
-                    <p class="text-button">Аналіз згладжування</p>
+                    <p class="text-button">Обчислення полінома</p>
                 </div>
                 <div class="control-body">
-                    <br>
+                    <!-- <br> -->
+                <p class="error-message" id="error-message-polynom"></p>
                 <div class="line-block">
-                    <label class="text-item-info" for="step-size">Кількість точок:</label>
-                    <input type="number" name="step-size" id="step-size">                    
+                    <label class="text-item-info" for="step-size">Крок t:</label>
+                    <input type="number" name="step-size" id="step-t-size-polynom">                    
                 </div>
                 <!-- <div class="panel">
                     <p class="text-item-body" id="choose-segment-polynom">Оберіть сегмент</p>
                 </div> -->
-                <div class="control-button control" id="control-button-polynom">
+                <div class="control-button control" id="control-button-calc-polynom">
                     <p class="text-button">Обчислити</p>
                     <img src="./img/start.png" alt="start animation" class="icon-button">
                 </div>
                 <br>
-                <table class="table-data" id="table-polynom">
-                    <thead>
-                        <tr>
-                            <th>t</th>
-                            <th>b<sub>3,0</sub></th>
-                            <th>b<sub>3,1</sub></th>
-                            <th>b<sub>3,2</sub></th>
-                            <th>b<sub>3,3</sub></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-
-                    </tbody>
-                </table>
+                <div class="scroll" id="table-panel-polynom">
+                    <table class="table-data" id="table-polynom">
+                        <thead>
+                            <tr>
+                                <th>t</th>
+                                <th>b<sub>3,0</sub></th>
+                                <th>b<sub>3,1</sub></th>
+                                <th>b<sub>3,2</sub></th>
+                                <th>b<sub>3,3</sub></th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-polynom-body">
+    
+                        </tbody>
+                    </table>
+                </div>
+                
                 </div>
             </div>
 
             <div class="control-main" id="control-main-points">
                 <div class="control-title">
-                    <p class="text-button">Обчилення полінома</p>
+                    <p class="text-button">Аналіз згладжування</p>
                 </div>
                 <div class="control-body">
-                    <br>
+                <p class="error-message" id="error-message-point"></p>
                 <div class="line-block">
-                    <label class="text-item-info" for="points-count">Кількість точок:</label>
-                    <input type="number" name="points-count" id="points-count">                    
+                    <label class="text-item-info" for="step-x">Крок x:</label>
+                    <input type="number" name="step-x" id="step-x-size-point">                    
                 </div>
                 <!-- <div class="panel">
                     <p class="text-item-body" id="choose-segment-points">Оберіть сегмент</p>
                 </div> -->
-                <div class="control-button control" id="control-button-points">
+                <div class="control-button control" id="control-button-calc-points">
                     <p class="text-button">Обчислити</p>
                     <img src="./img/start.png" alt="start animation" class="icon-button">
                 </div>
                 <br>
-                <table class="table-data" id="table-points">
-                    <thead>
-                        <tr>
-                            <th>x</th>
-                            <th>y<sub>ламаної</sub></th>
-                            <th>y<sub>кривої</sub></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-
-                    </tbody>
-                </table>
+                <div class="scroll">
+                    <table class="table-data" id="table-points">
+                        <thead>
+                            <tr>
+                                <th>x</th>
+                                <th>y<sub>ламаної</sub></th>
+                                <th>y<sub>кривої</sub></th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-point-body">
+    
+                        </tbody>
+                    </table>
+                </div>
+                
                 </div>
             </div>
             <div class="control-main" id="control-main-pallete">
@@ -255,16 +262,13 @@
   
 
         <div class="canvas-panel">
+            
             <canvas class="canvas-main" id="canvas-main">
 
             </canvas>
-            <!-- <div class="floating-div">
-                <p class="text-error" id="error-divs"></p>
-                <div class="step-div">
-                    <label for="step-lenght" class="text-section-name">Divs:</label>
-                    <input type="number" id="step-lenght" value="10">
-                </div> 
-            </div> -->
+            <canvas class="canvas-main" id="canvas-main-curve">
+
+            </canvas>
         </div>
     </div>
 </body>
