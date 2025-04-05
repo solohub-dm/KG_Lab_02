@@ -1860,23 +1860,27 @@ canvasMainCurve.addEventListener("wheel", (event) => {
 });
 
 
-function reSizeSystem(isScaleDown, isCentred) {
-  let stepDiff = maxDivsStep - minDivsStep;
-  let stepDelta;
+function reSizeSystem(isScaleDown, isCentred) { // isScaleDown - визначає чи zoom-out чи xoom-in
+  let stepDiff = maxDivsStep - minDivsStep; // Різниця між максимальним і мінімальним розміром клітинки в сітці системи
+  let stepDelta;  // Те, на скільки зміниться розмір клітинки при даному зумі
   
-  let isThird = (curDivsNumbr - 1) % 3 === 0;
+  let isThird = (curDivsNumbr - 1) % 3 === 0; // isThird визнчає чи зараз крок (значення поділок) в системі кратний п'яти.
+  // типу в мене при зумі крок міняється по принципу 1 2 5 10 20 50 100 і т.д. І коли я в мене зумиться і наступний крок
+  // кратний п'яти, то isThird == true.  
   if (isThird) 
-    stepDelta = stepDiff / 15;
+    stepDelta = stepDiff / 15;  
   else 
     stepDelta = stepDiff / 10;
 
   
-  let oldDivsStep = curDivsStep;
-  let mult = 1;
+  let oldDivsStep = curDivsStep;  // Зберігаю старий розмір клітинки в системи 
+  let mult = 1; // Те, на скільки зміниться крок в системі, якшо його треба змінити
   if (isScaleDown) {
-    if (curDivsStep <= minDivsStep) {
+    if (curDivsStep <= minDivsStep) { // Якшо зараз розмір клітинки рівний мінімільному, то
+      // треба змінити крок в системі на менший 
+
       curDivsStep = maxDivsStep;
-      if (isThird)  {
+      if (isThird)  { 
         curDivsValue *= 2.5;
         mult = 2.5;
       } else {
@@ -1884,13 +1888,14 @@ function reSizeSystem(isScaleDown, isCentred) {
         curDivsValue *= 2;
       }
       curDivsNumbr++;
-    } else {
+    } else { // інакше просто змуншую розмір клітинки
       curDivsStep -= stepDelta;
     }
 
   } else {
     
-    if (curDivsStep >= maxDivsStep) {
+    if (curDivsStep >= maxDivsStep) { // Якшо зараз розмір клітинки рівний максимальному, то
+      // треба змінити крок в системі на більший 
       curDivsStep = minDivsStep;
 
       isThird = (curDivsNumbr + 1) % 3 === 0;
@@ -1912,38 +1917,40 @@ function reSizeSystem(isScaleDown, isCentred) {
     }
   }
 
-  if (!isCentred) {
-    let curDist = new Pair(
-      (curPos.x * coefM - midlDrag.x),
-      (curPos.y * coefM - midlDrag.y)
+  if (!isCentred) { // isCentred забий. Якшо він тру, то система зумиться відносно центру, а не курсора
+    let curDist = new Pair( // Поточна відстань в пікелях від центру системи до куросора
+      (curPos.x * coefM - midlDrag.x),  
+      (curPos.y * coefM - midlDrag.y) 
     );
+    // curPos - позиція курсора coefM - це коефіцієнт в скільки разів я множу фактичні розміри canvas 
+    // шоб отримати його розширення. Типу якшо фактичний розмір canvas 1000x1000, то я можу його на coefM
+    // і в мене краща якість. 
+    // midlDrag - це положення центру системи відносно координати 0, 0 в канвасі (лівий верхній кут).
 
-    let curDiff = oldDivsStep - curDivsStep;
+    let curDiff = oldDivsStep - curDivsStep; // це те, наскільки змінився розмір клітинки після зуму
   
-    let curOff = new Pair(
-        (curDist.x / oldDivsStep) * curDiff,
-        (curDist.y / oldDivsStep) * curDiff
+    let curOff = new Pair(  // 
+        (curDist.x / oldDivsStep) * curDiff, // те на скільки змінилася позиція курсора після зумі
+        (curDist.y / oldDivsStep) * curDiff  // (curDist.y / oldDivsStep) це скільки старих клітинок було від
+        // центру до курсора, а * curDiff - це те, на скільки змінився розмір клітинки 
     );
   
-    dragOffset.add(curOff);
+    dragOffset.add(curOff); // dragOffset це змінна, яка потім додасться до midlDrag в функції drawSystem
 
-
-  
-    if (mult !== 1) {
-      let asd = midl.addO(dragOffset);
-      let abs = new Pair(
+    if (mult !== 1) { // Розглядаю ті випадки, коли відбулася зміна кроку в системі
+      let asd = midl.addO(dragOffset); // midl це координати центру canvas (не системи) тобто ширина canvas / 2, і висота / 2 
+      
+      
+      let abs = new Pair( // це відстінь від центру системи до курсора 
         curPos.x * coefM - asd.x,
         curPos.y * coefM - asd.y
-      );
+      );  
+      
 
-      if (isScaleDown) {
+      if (isScaleDown) { // відповідно в залежності від того, як в скільки різів змінився крок я роблю додаткове зміщення
         if (mult === 2) {
           dragOffset.add(abs.mulO(0.5));
- 
-
         } else if (mult === 2.5) {
-
-
           dragOffset.add(abs.mulO(0.6));
         }
       }  else {
