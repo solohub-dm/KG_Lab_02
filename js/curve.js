@@ -138,7 +138,7 @@ class Point {
             let vec = other.subPO(point);
             let len = vec.len();
             let unitVec = vec.mulO(1 / len);
-            drawDiamond(point, unitVec, 5.5, colors.curve);
+            drawDiamond(point, unitVec, 5.5, colors.black);
             drawDiamond(point, unitVec, 3, colors.white);
         }
     
