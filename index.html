@@ -8,6 +8,10 @@
     <link rel="stylesheet" href="./css/palette.css" />
     <link rel="stylesheet" href="./css/styles.css"/>
 
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
 </head>
 <body>
@@ -15,35 +19,113 @@
         <div class="side-panel">
             <div class="control-button side passive" id="control-button-projects">
                 <img src="./img/projects.png" alt="view projects" class="icon-button" id="icon-button-projects">
+                <span class="tooltip">Переглянути проекти</span>
             </div>
             <div class="control-button side passive" id="control-button-pentool">
                 <img src="./img/pentool.png" alt="open pentool" class="icon-button">
+                <span class="tooltip">Переглянути точки кривої</span>
             </div>
-            <div class="spm">
+
+            <div class="spm passive" id="spm">
                 <div class="control-button side passive" id="control-button-menu">
                     <img src="./img/menu.png" alt="open menu" class="icon-button">
+                    <span class="tooltip">Відкрити меню</span>
                 </div>
                 <div class="side-panel-menu" id="side-panel-menu">
+                    <div class="control-button side" id="control-button-method">
+                        <img src="./img/method.png" alt="choose build method" class="icon-button">
+                        <span class="tooltip">Обрати метод побудови</span>
+                    </div>
                     <div class="control-button side" id="control-button-recursive">
                         <img src="./img/recursive.png" alt="open pentool" class="icon-button">
+                        <span class="tooltip">Відтворити рекурсивну побудову</span>
                     </div>
                     <div class="control-button side" id="control-button-points">
                         <img src="./img/points.png" alt="open pentool" class="icon-button">
+                        <span class="tooltip">Проаналізувати згладжування</span>
                     </div>
                     <div class="control-button side" id="control-button-polynom">
                         <img src="./img/polynom.png" alt="open pentool" class="icon-button">
+                        <span class="tooltip">Обчислити поліноми</span>
                     </div>
                     <div class="control-button side" id="control-button-pallete">
                         <img src="./img/pallete.png" alt="open pentool" class="icon-button">
+                        <span class="tooltip">Змінити кольори відображення</span>
                     </div>
                 </div>
             </div>
-            
-
+            <div class="control-button side passive" id="control-button-info">
+                <img src="./img/info.png" alt="open info window" class="icon-button">
+                <span class="tooltip">Побачити довідкову інофрмацію</span>
+            </div>
         </div>
 
         <div class="control-panel">
 
+            <div class="control-main" id="control-main-info">
+                <div class="control-title">
+                    <p class="text-button">Довідка</p>
+                </div>
+                <div class="control-body scroll" id="control-body-info">
+                    <h3>Про програму</h3>
+                    <p>Доступно два види побудови кривої Безьє: <strong>склеїна</strong> та <strong>несклеїна</strong>.</p>
+                    
+                    <h4>Склеїна крива</h4>
+                    <p>Для склеїної кривої існують два типи точок:</p>
+                    <ul>
+                        <li><strong>Гладка точка</strong> — дотичні рівні за модулем та протилежні за напрямком.</li>
+                        <li><strong>Кутова точка</strong> — дотичні можуть бути різними як за модулем, так і за напрямком.</li>
+                    </ul>
+                    <p>Між двома сусідніми кутовими точками утворюється прямолінійний відрізок (крива першого порядку).</p>
+            
+                    <h4>Керування</h4>
+                    <ul>
+                        <li>Для пересування по полотні: зажати <strong>пробіл</strong> і, утримуючи ліву кнопку миші, потягнути у потрібну сторону.</li>
+                        <li>Для зміни масштабу: покрутити колесико миші.
+                            <ul>
+                                <li>При віджатому <strong>Ctrl</strong> — масштаб змінюється відносно курсора.</li>
+                                <li>При зажатому <strong>Ctrl</strong> — масштаб змінюється відносно центру координатної площини.</li>
+                            </ul>
+                        </li>
+                        <li>Для центрування екрану відносно координатної площини: натиснути <strong>C</strong>.</li>
+                        <li>Для центрування із одночасною зміною масштабу до звичайного: натиснути <strong>R</strong>.</li>
+                        <li>Для видалення поточної (обраної) кривої: натиснути <strong>Delete</strong>.</li>
+                        <li>Для видалення усіх кривих проєкту: натиснути <strong>Ctrl + Delete</strong>.</li>
+                    </ul>
+            
+                    <h4>Додавання точок</h4>
+                    <p><strong>Склеїна крива:</strong></p>
+                    <ul>
+                        <li>Короткий натиск лівою кнопкою миші додає <strong>кутову точку</strong>.</li>
+                        <li>Натиск із перетягуванням додає <strong>гладку точку</strong>, де:
+                            <ul>
+                                <li>Перша дотична задається від початкової точки до кінцевої (при відпусканні кнопки миші).</li>
+                                <li>Друга дотична протилежна першій.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <p><strong>Несклеїна крива:</strong> точки додаються лише коротким натиском.</p>
+            
+                    <h4>Редагування кривих</h4>
+                    <p>При зажатій клавіші <strong>Ctrl</strong> доступне редагування існуючих кривих:</p>
+                    <ul>
+                        <li>Для зміни точок поточної кривої: зажати ліву кнопку миші на обраній точці та перетягнути у потрібне місце.</li>
+                        <li>Для точок склеєної кривої:
+                            <ul>
+                                <li>При віджатій клавіші <strong>Alt</strong> — зберігається рівність за модулем та протилежність напрямку дотичних.</li>
+                                <li>При зажатій клавіші <strong>Alt</strong> — зберігається лише протилежність напрямку.</li>
+                            </ul>
+                        </li>
+                    </ul>
+            
+                    <h4>Вибір сегмента чи відрізка</h4>
+                    <ul>
+                        <li>Для вибору сегмента чи відрізка ламаної: натиснути лівою кнопкою миші на бажаний сегмент/відрізок поточної кривої.</li>
+                        <li>Для зняття фокусу з поточної кривої: двічі натиснути мимо неї по полотну.</li>
+                    </ul>
+                    <p>Після цього можна малювати нову криву або обрати існуючу, натиснувши лівою кнопкою миші на неї.</p>
+                </div>
+            </div>
 
             <div class="control-main" id="control-main-projects">
                 <div class="control-title">
@@ -57,14 +139,77 @@
                 </div>
             </div>
 
+            <div class="control-main" id="control-main-method">
+                <div class="control-title">
+                    <p class="text-button">Метод побудови</p>
+                </div>
+                <div class="control-body scroll" id="control-body-method">
+                    <div class="menu-item">
+                        <div class="line-block radio">
+                            <p class="text-item-head">Парамтеричний</p>
+                            <div class="panel-radio">
+                                <input type="radio" id="radio-method-parametric" name="radio-method" value="parametric" checked>
+                                <label class="label-radio" for="radio-method-recursive">Обрати параметричну побудову</label>
+                            </div>
+                        </div>
+                        
+                        <p class="text-item-body">Крива Безьє визначається як лінійна 
+                            комбінація контрольних точок з використанням поліномів Бернштейна:
+                            \[
+                            B(t) = \sum_{i=0}^{n} P_i \cdot b_{i,n}(t), \quad t \in [0, 1]
+                            \]
+                            де \(P_i\) — контрольні точки, а
+                            \[
+                            b_{i,n}(t) = \frac{n!}{i!(n-i)!}(1 - t)^{n - i}t^i
+                            \]
+                            — базисні поліноми Бернштейна.
+                        </p>
+                    </div>
+                    <div class="menu-item">
+                        <div class="line-block radio">
+                            <p class="text-item-head">Рекурсивний</p>
+                            <div class="panel-radio">
+                                <input type="radio" id="radio-method-recursive" name="radio-method" value="recursive">
+                                <label class="label-radio" for="radio-method-recursive">Обрати рекурсивну побудову</label>
+                            </div>
+                        </div>
+                        
+                        <p class="text-item-body">Алгоритм побудови полягає в поступовому лінійному інтерполюванні між контрольними точками:
+                            \[B(t) = (1 - t)B_{i}^{r - 1}(t) + t⋅B_{i+1}^{r - 1}(t)\]</p>
+                    </div>
+                    <div class="menu-item">
+                        <div class="line-block radio">
+                            <p class="text-item-head">Матричний</p>
+                            <div class="panel-radio">
+                                <input type="radio" id="radio-method-matrix" name="radio-method" value="matrix">
+                                <label class="label-radio" for="radio-method-recursive">Обрати матричну побудову</label>
+                            </div>
+                        </div>
+                        
+                        <p class="text-item-body">Крива подається у вигляді добутку векторів 
+                            і матриці: 
+                            \[
+                            B(t) = T \cdot M \cdot P
+                            \]
+                            де \(T = [0, t^1, \dots, t^{n-1}, 1]\) — вектор параметра,  
+                            \(M\) — матриця базису, 
+                            \(P = [P_0, P_1, P_2, P_3, \dots ,P_{n+1}] \) — вектор контрольних точок.</p>
+                    </div>
+                </div>
+            </div>
+
             <div class="control-main" id="control-main-menu">
                 <div class="control-title">
                     <p class="text-button">Меню</p>
                 </div>
                 <div class="control-body" id="control-body-menu">
                     <div class="menu-item">
+                        <p class="text-item-head">Метод побудови</p>
+                        <p class="text-item-body">Вибір методу побудови кривої Безьє (параметричний, рекурсивний, матричний).</p>
+                    </div>
+                    <div class="menu-item">
                         <p class="text-item-head">Рекурсивна побудова</p>
-                        <p class="text-item-body">Анімація побудови кривої Без'є рекурсивнитм методом.</p>
+                        <p class="text-item-body">Анімація побудови кривої Безьє рекурсивнитм методом.</p>
                     </div>
                     <div class="menu-item">
                         <p class="text-item-head">Аналіз згладжування</p>
@@ -124,8 +269,12 @@
                 <p class="text-item-info">s - номер поточного сегмента</p>
                 <p class="error-message" id="error-message-recurcive"></p>
                 <div class="line-block">
-                    <label class="text-item-info" for="step-t-size">Крок параметра t:</label>
-                    <input type="number" name="step-t-size" id="step-t-size-recursive">                    
+                    <label class="text-item-info" for="step-t-size-recursive">Крок параметра t:</label>
+                    <input type="number" name="step-t-size-recursive" id="step-t-size-recursive">                    
+                </div>
+                <div class="line-block">
+                    <label class="text-item-info" for="time-recursive">Час анімації одного кроку:</label>
+                    <input type="number" name="time-recursive" id="time-recursive">                    
                 </div>
                 <div class="control-button control" id="control-button-start-recursive">
                     <p class="text-button">Запустити</p>
@@ -148,15 +297,17 @@
                     <p class="text-button">Обчислення полінома</p>
                 </div>
                 <div class="control-body">
-                    <!-- <br> -->
+
                 <p class="error-message" id="error-message-polynom"></p>
                 <div class="line-block">
-                    <label class="text-item-info" for="step-size">Крок t:</label>
-                    <input type="number" name="step-size" id="step-t-size-polynom">                    
+                    <label class="text-item-info" for="step-t-size-polynom">Крок t:</label>
+                    <input type="number" name="step-t-size-polynom" id="step-t-size-polynom">                    
                 </div>
-                <!-- <div class="panel">
-                    <p class="text-item-body" id="choose-segment-polynom">Оберіть сегмент</p>
-                </div> -->
+                <div class="line-block">
+                    <label class="text-item-info" for="time-polynom">Час анімції одного кроку:</label>
+                    <input type="number" name="time-polynom" id="time-polynom">                    
+                </div>
+
                 <div class="control-button control" id="control-button-calc-polynom">
                     <p class="text-button">Обчислити</p>
                     <img src="./img/start.png" alt="start animation" class="icon-button">
@@ -192,9 +343,7 @@
                     <label class="text-item-info" for="step-x">Крок x:</label>
                     <input type="number" name="step-x" id="step-x-size-point">                    
                 </div>
-                <!-- <div class="panel">
-                    <p class="text-item-body" id="choose-segment-points">Оберіть сегмент</p>
-                </div> -->
+    
                 <div class="control-button control" id="control-button-calc-points">
                     <p class="text-button">Обчислити</p>
                     <img src="./img/start.png" alt="start animation" class="icon-button">
@@ -226,8 +375,16 @@
                     <p class="text-progress">Кольори кривої:</p>
                     <hr>
                     <div class="line-block">
-                        <label class="text-item-info" for="curve-color">Крива:</label>
-                        <input type="color" name="curve-color" id="curve-color">                    
+                        <label class="text-item-info" for="active-curve-color">Активна крива:</label>
+                        <input type="color" name="active-curve-color" id="active-curve-color">                    
+                    </div>
+                    <div class="line-block">
+                        <label class="text-item-info" for="non-active-curve-color">Неактивна крива:</label>
+                        <input type="color" name="non-active-curve-color" id="non-active-curve-color">                    
+                    </div>
+                    <div class="line-block">
+                        <label class="text-item-info" for="active-segment-color">Обраний сегмент:</label>
+                        <input type="color" name="active-segment-color" id="active-segment-color">                    
                     </div>
                     <br>
                     <p class="text-progress">Кольори точок:</p>
@@ -262,7 +419,10 @@
   
 
         <div class="canvas-panel">
-            
+            <div id="canvas-lock">
+                <img src="./img/lock.png" alt="Locked" />
+            </div>
+
             <canvas class="canvas-main" id="canvas-main">
 
             </canvas>
@@ -273,8 +433,10 @@
     </div>
 </body>
 
-<script src="./js/main.js"></script>
-<script src="./js/system.js"></script>
+<script src="./js/colors.js"></script>
+<script src="./js/window.js"></script>
 <script src="./js/curve.js"></script>
+<script src="./js/tasks.js"></script>
+<script src="./js/system.js"></script>
 
 </html>

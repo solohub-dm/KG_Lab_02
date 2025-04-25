@@ -1,3 +1,7 @@
+mjx-container[jax="CHTML"] {
+  margin: 0 !important; /* Зменшує вертикальні відступи */
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -11,7 +15,25 @@
   text-decoration: none;
 }
 
+#canvas-lock {
+  display: block;
+  position: absolute;
+  top: 58px;
+  left: 78px;
+  transform: translate(-50%, -50%);
+  z-index: 3; 
+  pointer-events: none; 
+}
 
+#canvas-lock img {
+  width: 48px;
+  height: 48px;
+  opacity: 0.7;
+}
+
+#canvas-main-curve {
+  pointer-events: none;
+}
 
 #table-panel-polynom, 
 .point-panel.scroll {
@@ -145,7 +167,8 @@
   border-color: var(--darkblue-normal);
   background-color: var(--darkblue-normal);
 
-  width: 27vw;
+  min-width: 315px;
+  max-width: 315px;
   height: 100vh;
 
   border-width: 0 3px;
@@ -210,6 +233,10 @@
   pointer-events: none;
 }
 
+#control-button-info {
+  margin-top: auto;
+}
+
 .control-button.passive {
   display: none;
   /* cursor: default;
@@ -222,6 +249,7 @@
   display: none;
   flex-direction: column;
   align-items: center;
+
   background-color: var(--darkblue-normal);
   padding: 5px;
   gap: 5px;
@@ -593,6 +621,82 @@ thead {
 
   position: relative;
   top: -4px;
+}
+
+
+.line-block.radio {
+  justify-content: space-between;
+  align-items: start;
+}
+
+.panel-radio {
+  position: relative;
+  left: 8px;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+#control-body-info h3, #control-body-info h4 {
+  color: var(--white-accent);
+  /* margin-bottom: 5px; */
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+#control-body-info p {
+  color: var(--white-normal);
+  /* margin-bottom: 10px; */
+  line-height: 1.5;
+}
+
+#control-body-info ul {
+  margin-left: 20px;
+  /* margin-bottom: 5px; */
+}
+
+#control-body-info li {
+  color: var(--white-normal);
+  margin-bottom: 5px;
+}
+
+.label-radio {
+  display: none;
+}
+
+.control-button {
+  position: relative; 
+}
+
+#control-button-info .tooltip {
+  top: 60%; 
+  left: 90%;
+}
+
+.tooltip {
+  visibility: hidden;
+  background-color: var(--darkblue-normal);
+  color: #fff;
+  text-align: center;
+  padding: 5px;
+  border: solid 2px var(--darkblue-bright);
+  pointer-events: none;
+  position: absolute;
+  top: 80%; 
+  left: 90%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 10;
+}
+
+.control-button:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
 }
 
 .line-block {
