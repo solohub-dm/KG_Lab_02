@@ -233,9 +233,6 @@ function getLinePoints(po1, po2, xStep, map, prevStart = undefined, isE = false)
       }
     }
 
-    console.log("map line: ", map); 
-
-
   if (prevStart === undefined) {
     return start;
   }
@@ -322,7 +319,6 @@ calcMatrixButton.addEventListener("click", () => {
 });
 
 function calcMatrix() {
-  console.log("calcMatrix()")
   if (isErrorMatrix.value) return;
 
   if (!currentSegment || currentSegment.isLine) {

@@ -336,10 +336,10 @@ class Project {
         windows.pentool.windowButton.classList.remove("passive");
         windows.info.windowButton.classList.remove("passive");
 
-        blockCanvas(false);
-        windows.menu.openWindow();
-
         this.drawThis();
+        blockCanvas(false);
+
+        windows.menu.openWindow();
     }
 
     closeProject() {
@@ -522,11 +522,5 @@ if (currentCurve) {
 }
 
 glueToggle.addEventListener("change", () => {
-  if (glueToggle.checked) {
-    console.log("Glue mode enabled");
 
-  } else {
-    console.log("Glue mode disabled");
-
-  }
 });

@@ -251,7 +251,7 @@ function addPoint(pair, isBase, isSoft = false, id = undefined) {
 
     if (Array.isArray(currentCurve)) {
         if (!glueToggle.checked) {
-            console.log("point", point);
+
             let segment = undefined;
             if (currentCurve.length === 1) { 
                 segment = new Segment(
@@ -263,7 +263,7 @@ function addPoint(pair, isBase, isSoft = false, id = undefined) {
                     true, 
                     false
                 );
-                segment.isLine = true;
+                // segment.isLine = true;
                 currentCurve.at(-1).segment = segment;
                 currentCurve.at(-1).segPos = 0;
                 currentProject.segments.push(segment)
@@ -287,10 +287,6 @@ function addPoint(pair, isBase, isSoft = false, id = undefined) {
 
         currentProject.curves.push(currentCurve);  
     }
-
-    // if (glueToggle.checked === true) {
-    //     point.segment = new
-    // }
 
     return point;
 }
@@ -414,15 +410,17 @@ class Segment {
     }
 
     calcPoints() {
-        if (this.isLine) return;
+          
 
         this.precomputeBezierMatrix();
-
+        
         let points = this.points;
+  
         for (let i = 0; i < points.length - 1; i++) {
             let dist = points[i].dist(points[i + 1]);
             if (dist > this.curMaxDist) {
                 let temp = this.recursiveCalcMidlD(points[i], points[i + 1]);
+        
                 points.splice(i + 1, 0, ...temp); 
             }
         }
@@ -558,8 +556,6 @@ class Segment {
             xNext = Math.floor(this.points[0].pair.x / smallestDigit) * smallestDigit;
             index = 0;
             xDir = this.points[0].pair.x < this.points[1].pair.x;
-
-        console.log("map curve", map); 
 
         return map;
     }

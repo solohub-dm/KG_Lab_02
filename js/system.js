@@ -743,7 +743,6 @@ function startDrawing(event) {
       drawPoint(startPosPentool);
     // }
   } else {
-    console.log("-----------startDrawing else");
     if (!currentCurve.at(-1).isBase)
       currentCurve.pop();
 
@@ -899,7 +898,6 @@ function dragPoint(event) {
     minDistPoints[i].setPos(newPosPoint);
     if (!glueToggle.checked) {
       drawCurve();
-      console.log("dragPoint else");
       return;
     }
 
