@@ -7,11 +7,14 @@ colorInputs.forEach((input) => {
     });
     input.addEventListener("focus", () => {
         canvasMainCurve.style.pointerEvents = "none";
-        lockImg.style.display = "block";
+        lockImg.style.display = "flex";
+        sider.style.display = "none";
     });
     input.addEventListener("blur", () => {
         canvasMainCurve.style.pointerEvents = "auto";
         lockImg.style.display = "none";
+        sider.style.display = "flex";
+
     });
 })
 

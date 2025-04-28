@@ -136,11 +136,20 @@ const windows = {
         getElement("#control-button-polynom")
     ),
 
+    matrix: new Window(
+        getElement("#control-main-matrix"),
+        [
+            getElement("#control-button-matrix"),
+            menuControlBody.children[4]
+        ],
+        getElement("#control-button-matrix")
+    ),
+
     pallete: new Window(
         getElement("#control-main-pallete"),
         [
             getElement("#control-button-pallete"),
-            menuControlBody.children[4]
+            menuControlBody.children[5]
         ],
         getElement("#control-button-reset")
     ),
@@ -242,13 +251,10 @@ class Project {
         this.menuItem = menuItem;
         this.menuItem.addEventListener("click", () => this.openProject());
         this.menuItem.addEventListener("mouseenter", () => {
-            console.log("mouseenter");
-            console.log("this: ", this);
             if (!this.isClear)
             this.drawThis();
         } );
         this.menuItem.addEventListener("mouseleave", () => {
-            console.log("mouseenter");
 
             if (!currentProject || currentWindow === windows.projects)
                 clearCanv();
@@ -292,8 +298,13 @@ class Project {
     drawThis() {
         currentProject = this;
         currentCurve = undefined;
+        updateGlueToggle();
+
         currentPoint = undefined;
         currentSegment = undefined;
+        currentMaxPolynoms.value = 0;
+        startPolynomInput.value = 0;
+        endPolynomInput.value = 0;
 
         maxGridSize = this.param.maxGridSize;
         minGridSize = this.param.minGridSize;
@@ -332,15 +343,37 @@ class Project {
     }
 
     closeProject() {
-        this.canvas.width = sizeCanvas.x;
-        this.canvas.height = sizeCanvas.y;
+        let srcWidth = canvasMainCurve.width;
+        let srcHeight = canvasMainCurve.height;
+        let dstWidth = this.canvas.width;
+        let dstHeight = this.canvas.height;
+
+        let scale = Math.min(dstWidth / srcWidth, dstHeight / srcHeight);
+    
+        let drawWidth = srcWidth * scale;
+        let drawHeight = srcHeight * scale;
+    
+        let offsetX = (dstWidth - drawWidth) / 2;
+        let offsetY = (dstHeight - drawHeight) / 2;
+
+        this.ctx.clearRect(0, 0, dstWidth, dstHeight);
 
         currentCurve = undefined;
+        updateGlueToggle();
+
         currentSegment = undefined;
+        currentMaxPolynoms.value = 0;
+        startPolynomInput.value = 0;
+        endPolynomInput.value = 0;
         drawCurve(true);
-    
-        this.ctx.drawImage(canvasMainCurve, 0, 0);
-    
+        
+
+        this.ctx.drawImage(
+            canvasMainCurve,
+            0, 0, srcWidth, srcHeight,   
+            offsetX, offsetY, drawWidth, drawHeight  
+        );
+
         blockCanvas(true);
         clearCanv();
         this.param = {
@@ -398,13 +431,102 @@ function clearCanv() {
 function blockCanvas(isBlock) {
     if (isBlock) {
         canvasMainCurve.style.pointerEvents = "none";
-        lockImg.style.display = "block";
+        lockImg.style.display = "flex";
+        sider.style.display = "none";
+
     } else {
         canvasMainCurve.style.pointerEvents = "auto";
-        lockImg.style.display = "none";
+        lockImg.style.display = "none";        
+        sider.style.display = "flex";
+
     }
 }
 
+const controlPanel = document.getElementById("control-panel");
+const resizeHandle = document.getElementById("control-panel-resize");
+
+let isResizing = false;
+let startX = 0;
+let startWidth = 0;
+
+const minWidth = 330;
+const maxWidth = 630;
+
+resizeHandle.addEventListener("mousedown", (event) => {
+  event.preventDefault();
+
+  const rect = resizeHandle.getBoundingClientRect();
+  const withinHandle =
+    event.clientX >= rect.left &&
+    event.clientX <= rect.right &&
+    event.clientY >= rect.top &&
+    event.clientY <= rect.bottom;
+
+  if (!withinHandle) {
+    return; 
+  }
+
+  isResizing = true;
+  prevX = event.clientX;
+
+  document.body.style.cursor = "ew-resize"; 
+  document.body.style.userSelect = "none"; 
+
+  document.addEventListener("mousemove", resizePanel);
+  document.addEventListener("mouseup", stopResizing);
+});
+
+function resizePanel(event) {
+    if (!isResizing) return;
+  
+    const deltaX = event.clientX - prevX;
+    prevX = event.clientX; 
+    
+    let newWidth = controlPanel.offsetWidth + deltaX;
+    if (newWidth < minWidth) newWidth = minWidth;
+    if (newWidth > maxWidth) newWidth = maxWidth;
+  
+    controlPanel.style.width = `${newWidth}px`;
+  }
+function stopResizing() {
+  if (!isResizing) return;
+
+  isResizing = false;
+
+  document.body.style.cursor = "";
+  document.body.style.userSelect = "";
+
+  document.removeEventListener("mousemove", resizePanel);
+  document.removeEventListener("mouseup", stopResizing);
+}
+
+const sider = getElement("#canvas-glue");
+const glueToggle = getElement("#glue-toggle");
+const glueSlider = getElement("#slider");
 
 
+function updateGlueToggle() {
+if (currentCurve) {
+    glueToggle.disabled = true;
+    glueToggle.style.pointerEvents = "none";
+    glueSlider.style.cursor = "default";
+    glueSlider.classList.add("disabled"); 
+    glueSlider.setAttribute("data-tooltip", "Неможливо обрати режим для уже створеної кривої."); 
+} else {
+    glueToggle.disabled = false;
+    glueToggle.style.pointerEvents = "auto";
+    glueSlider.style.cursor = "pointer";
+    glueSlider.classList.remove("disabled"); 
+    glueSlider.removeAttribute("data-tooltip"); 
+}
+}
 
+glueToggle.addEventListener("change", () => {
+  if (glueToggle.checked) {
+    console.log("Glue mode enabled");
+
+  } else {
+    console.log("Glue mode disabled");
+
+  }
+});

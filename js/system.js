@@ -1,3 +1,13 @@
+
+
+let isLoggingEnabled = true;
+
+function logFunctionName(functionName) {
+  if (isLoggingEnabled) {
+    console.log(`Function called: ${functionName}`);
+  }
+}
+
 let sizeCanvas;
 let coefC = 2;
 
@@ -13,6 +23,7 @@ const сtxBuffer = canvasBuffer.getContext("2d");
 const resizeObserver = new ResizeObserver(() => {
   if (!currentProject) return;
   updateCanvasSize();
+  if (isResizing && currentWindow === windows.projects) return; 
   drawSystem();
   drawCurve();
 });
@@ -21,6 +32,7 @@ resizeObserver.observe(canvasMain);
 window.addEventListener("load", updateCanvasSize());
 
 function updateCanvasSize() {
+  logFunctionName("updateCanvasSize");
   let sizeReal = new Pair(
     canvasMain.offsetWidth, 
     canvasMain.offsetHeight
@@ -38,28 +50,38 @@ const deleteCurveButton = getElement("#control-button-delete");
 deleteCurveButton.addEventListener("click", deleteCurrentCurve);
 
 document.addEventListener("keydown", (event) => {
+  if (leave) return;
+
   if (event.key === "Delete") { 
     if (isCtrlPressed) {
-      deleteAddCurves();
+      deleteAllCurves();
     } else {
       deleteCurrentCurve();
     }
   }
 });
 
-function deleteAddCurves() {
+function deleteAllCurves() {
+  logFunctionName("deleteAllCurves");
   currentProject.curves = [];
   currentProject.segments = [];
 
   currentSegment = undefined;
+  currentMaxPolynoms.value = 0;
+  startPolynomInput.value = 0;
+  endPolynomInput.value = 0;
+
   currentLineI = undefined;
   currentCurve = undefined;
+  updateGlueToggle();
+
   currentPoint = undefined;
   lastCurrentPoint = undefined;
   drawCurve();
 }
 
 function spliceCurrentCurve() {
+  logFunctionName("spliceCurrentCurve");
   let index = currentProject.curves.indexOf(currentCurve);
   if (index !== -1) {
     currentProject.curves.splice(index, 1);
@@ -67,21 +89,35 @@ function spliceCurrentCurve() {
 }
 
 function deleteCurrentCurve() {
+  logFunctionName("deleteCurrentCurve");
   if (currentCurve) {
     pointPanel.innerHTML = "";
-    for (let i = 0; i < currentCurve.length; i++) {
-      if (currentCurve[i].isBase) {
-        let index = currentProject.segments.indexOf(currentCurve[i].segment[0]);
-        if (index !== -1) {
-          currentProject.segments.splice(index, 1);
+    if (!glueToggle.checked) {
+      let index = currentProject.segments.indexOf(currentCurve[0].segment);
+      if (index !== -1) {
+        currentProject.segments.splice(index, 1);
+      }
+    } else {
+      for (let i = 0; i < currentCurve.length; i++) {
+        if (currentCurve[i].isBase) {
+          let index = currentProject.segments.indexOf(currentCurve[i].segment[0]);
+          if (index !== -1) {
+            currentProject.segments.splice(index, 1);
+          }
         }
       }
     }
+    
     spliceCurrentCurve();
 
     currentSegment = undefined;
+    currentMaxPolynoms.value = 0;
+    startPolynomInput.value = 0;
+    endPolynomInput.value = 0;
     currentLineI = undefined;
     currentCurve = undefined;
+    updateGlueToggle();
+
     currentPoint = undefined;
     lastCurrentPoint = undefined;
 
@@ -118,6 +154,7 @@ let lastPosPentool;
 let clickOff = false;
 
 function drawPoint(p, o, isActivePoint = 1) {
+  // logFunctionName("drawPoint");
   let point = (p instanceof Point) ? p.getPos() : p;
 
   if (o) {
@@ -152,6 +189,7 @@ function drawPoint(p, o, isActivePoint = 1) {
 }
 
 function drawDiamond(point, unitVec, len, color) {
+  // logFunctionName("drawDiamond");
   let vec = unitVec.mulCO(coefC * len);
   let vecRot = vec.rotate90();
   ctxCur.fillStyle = color;
@@ -193,6 +231,8 @@ function drawLine(sP, eP, isTangent, isActiveCurve = true) {
 }
 
 document.addEventListener("keydown", (event) => {
+  if (leave) return;
+
   if (
     event.key === "c" || event.key === "C" || 
     event.key === "с" || event.key === "С"
@@ -203,6 +243,8 @@ document.addEventListener("keydown", (event) => {
 });
 
 document.addEventListener("keydown", (event) => {
+  if (leave) return;
+
   if (
     event.key === "r" || event.key === "R" || 
     event.key === "к" || event.key === "К"
@@ -213,12 +255,14 @@ document.addEventListener("keydown", (event) => {
 });
 
 function centerSystem() {
+  logFunctionName("centerSystem");
   dragOffset = new Pair(0, 0);
   drawSystem();
   drawCurve();
 }
 
 function scaleCenterSystem() {
+  logFunctionName("scaleCenterSystem");
   curDivsValue = 1;
   curDivsNumbr = 0;
   curGridSize = (maxGridSize + minGridSize) / 2;
@@ -228,7 +272,9 @@ function scaleCenterSystem() {
 document.addEventListener("keydown", (event) => {
   if (event.code === "Space") {
     if (canvasMainCurve.style.pointerEvents === "none") return;
-
+    if (!leave && !glueToggle.checked && !isSpacePressed) {
+      deletePointGlued();
+    }
     if (!isDragging && !isCtrlPressed) {
       if (
         canvasMainCurve.style.cursor !== "zoom-in" &&
@@ -251,13 +297,25 @@ document.addEventListener("keyup", (event) => {
     canvasMainCurve.style.cursor = "default"; 
 
     if (lastPosPentool) {
-      drawPreview(lastPosPentool);
+      if (!glueToggle.checked ) {
+
+        if (currentCurve && !leave) {
+          addPoint(lastPosPentool, true, true);
+          currentCurve.at(-1).segment.reCalcPoints();
+          currentPoint = currentCurve.at(-1);
+          drawCurve();
+        }
+      } else {
+        drawPreview(lastPosPentool);
+      }
     }
   } 
 });
 
 
 function drawCurve() {
+  // logFunctionName("drawCurve");
+  
   ctxCur.clearRect(0, 0, canvasMainCurve.width, canvasMainCurve.height);
 
   if (currentProject === undefined || !Array.isArray(currentProject.curves)) {
@@ -272,15 +330,21 @@ function drawCurve() {
   Segment.maxDist = Math.min(lineLenghtLength.x, lineLenghtLength.y);
 
   let segments = currentProject.segments;
+
   segments.forEach((segment) => {
     segment.draw(0);
   });
 
   if (currentCurve) {
-    currentCurve.forEach((point) => {
-      if (point.segment && point.segment.length > 0)
-        point.segment[0].draw(1);
-    })
+    if (!glueToggle.checked && currentCurve.length > 1) {
+      currentCurve.at(-1).segment.draw(1);
+    } else {
+      currentCurve.forEach((point) => {
+        if (point.segment && point.segment.length > 0)
+          point.segment[0].draw(1);
+      })
+    }
+
   }
 
   if (currentSegment)
@@ -290,6 +354,7 @@ function drawCurve() {
 }
 
 function drawPolylineOne(curve) {
+  // logFunctionName("drawPolylineOne");
  
   if (!Array.isArray(curve)) return;
 
@@ -354,6 +419,7 @@ let minDistPoints;
 let minDistCurves;
 
 function findMinDistPoints(curPosCursor) {
+  logFunctionName("findMinDistPoints");
   let curves = currentProject.curves;
   let isInCurCurve = false;
   minDistPoints = undefined;
@@ -389,6 +455,7 @@ function findMinDistPoints(curPosCursor) {
 }
 
 function findMinDistSegment(curPosCursor) {
+  logFunctionName("findMinDistSegment");
   let minDistSegment = undefined;
   let segments = currentProject.segments;
   let maxDist = minUseDist / curGridSize * curDivsValue / 2 * 1.25;
@@ -428,7 +495,9 @@ function findMinDistSegment(curPosCursor) {
 }
 
 function findMinDistLine(curPosCursor) {
+  logFunctionName("findMinDistLine");
   for (let i = 0; i < currentCurve.length - 1; i++) {
+    
     if (isOnLineClicked(currentCurve[i].pair, currentCurve[i + 1].pair, curPosCursor)) {
       return i;
     }
@@ -436,6 +505,7 @@ function findMinDistLine(curPosCursor) {
 }
 
 function isOnLineClicked(p1, p2, curPosCursor) {
+  logFunctionName("isOnLineClicked");
   let vec = p2.subPO(p1);
   let len = vec.len();
   let minDist = minUseDist / 2 * 1.25;
@@ -455,20 +525,30 @@ function isOnLineClicked(p1, p2, curPosCursor) {
 }
 
 function chooseCurve(curve) {
+  logFunctionName("chooseCurve");
   currentCurve = curve;
+  updateGlueToggle();
+  if (currentCurve[0].segment[0]) {
+    glueToggle.checked = true;
+  } else {
+    glueToggle.checked = false;
+  }
+
   currentPoint = currentCurve.at(-1);
 
-  lastPoint = currentCurve.at(-1);
-  if (lastPoint.isSoft) {
-    prevPoint = currentCurve.at(-2);
-    let prevBase = currentCurve.at(-4);
-    let vec = lastPoint.getPos().subPO(prevPoint.getPos());
+  if (glueToggle.checked) {
+    lastPoint = currentCurve.at(-1);
+    if (lastPoint.isSoft) {
+      prevPoint = currentCurve.at(-2);
+      let prevBase = currentCurve.at(-4);
+      let vec = lastPoint.getPos().subPO(prevPoint.getPos());
 
-    if (!prevBase.isSoft) {
-      vec.mulC(5/4);
-    } 
-    let point = lastPoint.getPos().addPO(vec);
-    addPoint(point, false)
+      if (!prevBase.isSoft) {
+        vec.mulC(5/4);
+      } 
+      let point = lastPoint.getPos().addPO(vec);
+      addPoint(point, false)
+    }
   }
 
   pointPanel.innerHTML = "";
@@ -478,6 +558,7 @@ function chooseCurve(curve) {
 }
 
 function unChooseCurve() {
+  logFunctionName("unChooseCurve");
   if (Array.isArray(currentCurve)) {
     if (currentCurve.length <= 2) {
       if (currentCurve.length == 2 && currentCurve[0].isBase && currentCurve[1].isBase) {
@@ -494,40 +575,58 @@ function unChooseCurve() {
   pointPanel.innerHTML = "";
   currentLineI = undefined;
   currentCurve = undefined;
+  updateGlueToggle();
+
   currentSegment = undefined;
+  currentMaxPolynoms.value = 0;
+  startPolynomInput.value = 0;
+  endPolynomInput.value = 0;
   currentPoint = undefined;
 }
 
 function choosePoint(point) {
+  logFunctionName("choosePoint");
   currentPoint = point;
   if (currentPoint.isBase) lastCurrentPoint = currentPoint;
 
-  let lastPoint = currentCurve.at(-1);
-  let prevPoint = currentCurve.at(-2);
-  if (currentPoint === currentCurve[0]) {
-    if (lastPoint.isBase && prevPoint.isBase) {
+  if (!glueToggle.checked) {
+    if (currentPoint === currentCurve[0]) {
       currentCurve.reverse();
-    } else  {
-      if (currentCurve.length > 2) {
-        if (!lastPoint.isBase) 
-          currentCurve.pop();
-        currentCurve.reverse();
-      }
+      let segment = currentCurve.at(-1).segment;
+      segment.controls.reverse();
+      currentCurve.forEach((point, index) => {
+        point.segPos = index;
+      });
     }
-  } 
-
-  lastPoint = currentCurve.at(-1);
-  if (lastPoint.isSoft) {
-    prevPoint = currentCurve.at(-2);
-    let prevBase = currentCurve.at(-4);
-    let vec = lastPoint.getPos().subPO(prevPoint.getPos());
-
-    if (!prevBase.isSoft) {
-      vec.mulC(5/4);
+  } else {
+    let lastPoint = currentCurve.at(-1);
+    let prevPoint = currentCurve.at(-2);
+    if (currentPoint === currentCurve[0]) {
+      if (lastPoint.isBase && prevPoint.isBase) {
+        currentCurve.reverse();
+      } else  {
+        if (currentCurve.length > 2) {
+          if (!lastPoint.isBase) 
+            currentCurve.pop();
+          currentCurve.reverse();
+        }
+      }
     } 
-    let point = lastPoint.getPos().addPO(vec);
-    addPoint(point, false)
+  
+    lastPoint = currentCurve.at(-1);
+    if (lastPoint.isSoft) {
+      prevPoint = currentCurve.at(-2);
+      let prevBase = currentCurve.at(-4);
+      let vec = lastPoint.getPos().subPO(prevPoint.getPos());
+  
+      if (!prevBase.isSoft) {
+        vec.mulC(5/4);
+      } 
+      let point = lastPoint.getPos().addPO(vec);
+      addPoint(point, false)
+    }
   }
+
     
   pointPanel.innerHTML = "";
   currentCurve.forEach((curve) => {
@@ -536,6 +635,7 @@ function choosePoint(point) {
 }
 
 function chooseLastBasePoint() {
+  logFunctionName("chooseLastBasePoint");
   if (currentCurve.at(-1).isBase)
     currentPoint = currentCurve.at(-1);
   else 
@@ -547,12 +647,16 @@ function chooseLastBasePoint() {
 let currentLineI;
 
 function tryChoose(event) {
+  logFunctionName("tryChoose");
   let curPosCursor = getCurPos(event);
 
     if (currentCurve)
       findMinDistPoints(curPosCursor);
 
     currentSegment = undefined;
+    currentMaxPolynoms.value = 0;
+    startPolynomInput.value = 0;
+    endPolynomInput.value = 0;
     let minDistSegment = undefined;
     if (!currentCurve || !minDistPoints) {
       minDistSegment = findMinDistSegment(curPosCursor);
@@ -564,11 +668,19 @@ function tryChoose(event) {
       minDistLineI = findMinDistLine(curPosCursor);
     }
    
-    if (minDistLineI) {
+    if (minDistLineI !== undefined) {
       currentLineI = minDistLineI;
     } else if (minDistSegment) {
       if (currentCurve) {
         currentSegment = minDistSegment;
+        
+        currentMaxPolynoms.value = currentSegment.controls.length - 1;
+        startPolynomInput.value = 0;
+        endPolynomInput.value = currentMaxPolynoms.value;
+        startMatrixColumnInput.value = 0;
+        endMatrixColumnInput.value = currentMaxPolynoms.value;
+        startMatrixRowsInput.value = 0;
+        endMatrixRowsInput.value = currentMaxPolynoms.value;
      
         chooseLastBasePoint();
         
@@ -613,7 +725,9 @@ function startDraggindSystem(event) {
 }
 
 function startDrawing(event) {
+  logFunctionName("startDrawing");
   if (
+    !glueToggle.checked ||
     !currentPoint ||
      currentCurve.at(-1).isBase && currentPoint === currentCurve.at(-1) ||
     !currentCurve.at(-1).isBase && currentPoint === currentCurve.at(-2) 
@@ -621,15 +735,27 @@ function startDrawing(event) {
 
     startPosPentool = getCurPos(event);
     curPosPentool = startPosPentool.cpy();
-    drawPoint(startPosPentool);
+
+    // if (!glueToggle.checked) {
+    //   addPoint(startPosPentool, true, true);
+    // } else {
+    if (glueToggle.checked)
+      drawPoint(startPosPentool);
+    // }
   } else {
+    console.log("-----------startDrawing else");
     if (!currentCurve.at(-1).isBase)
       currentCurve.pop();
 
     pointPanel.innerHTML = "";
     currentLineI = undefined;
     currentCurve = undefined;
+    updateGlueToggle();
+
     currentSegment = undefined;
+    currentMaxPolynoms.value = 0;
+    startPolynomInput.value = 0;
+    endPolynomInput.value = 0;
     currentPoint = addPoint(currentPoint.getPos(), true, true, currentPoint.id);
 
     startPosPentool = getCurPos(event);
@@ -641,6 +767,8 @@ function startDrawing(event) {
 }
 
 canvasMainCurve.addEventListener("mousedown", (event) => {
+  if (event.button !== 0) return;
+
   if (isSpacePressed) {  
     startDraggindSystem(event);
   } else if (isCtrlPressed) {
@@ -653,6 +781,7 @@ canvasMainCurve.addEventListener("mousedown", (event) => {
 });
 
 function dragSystem(event) {
+  logFunctionName("dragSystem");
   let deltaDragCoords = new Pair(
     event.clientX - startDragCoords.x,
     event.clientY - startDragCoords.y
@@ -669,6 +798,7 @@ function dragSystem(event) {
 }
 
 function drawPrevPointSoft() {
+  logFunctionName("drawPrevPointSoft");
   if (Array.isArray(currentCurve)) {
     let prev = currentCurve.at(-1);
 
@@ -724,6 +854,7 @@ function drawPrevPointSoft() {
 }
 
 function drawPrevPointHard() {
+  logFunctionName("drawPrevPointHard");
   if (Array.isArray(currentCurve)) {
     let prev = currentCurve.at(-1);
     if (prev.isBase) {
@@ -746,12 +877,31 @@ function drawPrevPointHard() {
   drawPoint(startPosPentool, undefined , true);
 }
 
+let isAltPressed = false;
+document.addEventListener("keydown", (event) => {
+  if (event.altKey) {
+      isAltPressed = true;
+  }
+});
+
+document.addEventListener("keyup", (event) => {
+  if (event.key === "Alt") {
+      isAltPressed = false;
+  }
+});
+
 function dragPoint(event) {
+  logFunctionName("dragPoint");
   let newPosPoint = getCurPos(event);
   let oldPosPointSave = currentPoint.getPos();
 
   for (let i = 0; i < minDistPoints.length; i++) {
     minDistPoints[i].setPos(newPosPoint);
+    if (!glueToggle.checked) {
+      drawCurve();
+      console.log("dragPoint else");
+      return;
+    }
 
     let prev;
     let next;
@@ -789,15 +939,36 @@ function dragPoint(event) {
         if (curIndex !== minDistCurves[i].lengtn - 1) 
           nextBase = minDistCurves[i][curIndex + 2];
 
-        let vec = prev.getPos().subPO(newPosPoint);
+        let vec;
 
-        if (prevBase.isSoft) {
-          if (nextBase && !nextBase.isSoft) 
-            vec.mulC(5/4);
+        if (isAltPressed) {
+
+          let dist = prev.getPos().dist(prevPrev.getPos());
+          
+          vec = prev.getPos().subPO(newPosPoint);
+          
+          let denominator = prev.getPos().dist(newPosPoint);
+          
+          if (denominator === 0) {
+              return;
+          } else {
+              vec.mulC(1 / denominator);
+              vec.mulC(dist);
+          }
+          
         } else {
-          if (!nextBase || nextBase.isSoft) 
-            vec.mulC(4/5);
+          
+          vec = prev.getPos().subPO(newPosPoint);
+          if (prevBase.isSoft) {
+            if (nextBase && !nextBase.isSoft) 
+              vec.mulC(5/4);
+          } else {
+            if (!nextBase || nextBase.isSoft) 
+              vec.mulC(4/5);
+          }
+          
         }
+        
    
         let point = prev.getPos().addPO(vec);
         prevPrev.setPos(point);
@@ -809,15 +980,34 @@ function dragPoint(event) {
         if (curIndex + 4 < minDistCurves[i].length)
           nextBase = minDistCurves[i][curIndex + 4];
 
-        let vec = next.getPos().subPO(newPosPoint);
+        let vec;
 
-        if (!nextBase || nextBase.isSoft) {
-          if (!prevBase.isSoft) 
-            vec.mulC(5/4);
+        if (isAltPressed) {
+          let dist = next.getPos().dist(nextNext.getPos());
+          
+          vec = next.getPos().subPO(newPosPoint);
+          
+          let denominator = next.getPos().dist(newPosPoint);
+          
+          if (denominator === 0) {
+              return;
+          } else {
+              vec.mulC(1 / denominator);
+              vec.mulC(dist);
+          }
+
         } else {
-          if (prevBase.isSoft);
-            vec.mulC(4/5);
+          vec = next.getPos().subPO(newPosPoint);
+
+          if (!nextBase || nextBase.isSoft) {
+            if (!prevBase.isSoft) 
+              vec.mulC(5/4);
+          } else {
+            if (prevBase.isSoft);
+              vec.mulC(4/5);
+          }
         }
+        
 
         let point = next.getPos().addPO(vec);
         nextNext.setPos(point);
@@ -828,45 +1018,110 @@ function dragPoint(event) {
   drawCurve();
 }
 
+function deletePointGlued() {
+  if (!currentCurve) return;
+  if (currentCurve.length < 2) return;
+  let point = currentCurve.at(-1);
+  let segment = point.segment;
+  segment.controls.splice(-1, 1);
+
+  currentCurve.splice(point.segPos, 1); 
+  point = currentCurve.at(-1);
+  currentPoint = point;
+  point.isBase = true;
+  if (currentCurve.length === 2) {
+    segment.isLine = true;
+  } else {
+    segment.isLine = false;
+  }
+  segment.reCalcPoints();
+
+  pointPanel.innerHTML = "";
+  currentCurve.forEach((curve) => {
+    pointPanel.append(curve.item);
+  });
+
+  drawCurve();
+}
+
 canvasMainCurve.addEventListener("mousemove", (event) => {
+
   if (isDragging) {   
-    if (isSpacePressed) {
+    if (isSpacePressed ) {
       dragSystem(event);
 
     } else if (!isCtrlPressed) {
       curPosPentool = getCurPos(event);
       drawCurve();
-      drawLine(startPosPentool, curPosPentool, 1)
-      
-      let dist = startPosPentool.dist(curPosPentool);
-      if (dist > 6 * coefC) {
-        drawPrevPointSoft();
-      }  else {
-        drawPrevPointHard();
+
+      if (!glueToggle.checked) {
+        if (currentCurve ) {
+          if (currentCurve.length === 1 || leave) {
+            addPoint(curPosPentool, true, true);
+            currentPoint = currentCurve.at(-1);
+            currentPoint = currentCurve.at(-1);
+          }
+
+          currentCurve.at(-1).setPos(curPosPentool);
+          // deletePointGlued();
+          // addPoint(startPosPentool, true, true);
+
+          drawCurve();
+        } 
+      } else {
+        drawLine(startPosPentool, curPosPentool, 1);
+
+        let dist = startPosPentool.dist(curPosPentool);
+        if (dist > 6 * coefC) {
+          drawPrevPointSoft();
+        }  else {
+          drawPrevPointHard();
+        } 
       }
       
     } else if (isDraggingPoint) {
-
       dragPoint(event);
+
     }
   } else {
 
     if (!isSpacePressed && !isCtrlPressed) {
       let curPosPentool = getCurPos(event);
+      if (!glueToggle.checked) {
+        if (currentCurve ) {
+          if (currentCurve.length === 1 || leave) {
+            addPoint(curPosPentool, true, true);
+            currentPoint = currentCurve.at(-1);
+            currentPoint = currentCurve.at(-1);
+          }
 
-      if (currentCurve) {
-        drawPreview(curPosPentool);
+          currentCurve.at(-1).setPos(curPosPentool);
+          // deletePointGlued();
+          // addPoint(startPosPentool, true, true);
+
+          drawCurve();
+        } 
+   
+
       } else {
-        drawCurve();
-        drawPoint(curPosPentool);
+        if (currentCurve) {
+          drawPreview(curPosPentool);
+        } else {
+          drawCurve();
+          drawPoint(curPosPentool);
+        }
       }
+ 
     } 
   }
   lastPosPentool = getCurPos(event);
- 
+  if (!glueToggle.checked) {
+    leave = false;
+  } 
 });
 
 function drawPreview(curPosPentool) {
+  // logFunctionName("drawPreview");
   drawCurve();
   let cC = currentCurve;
   if (currentCurve) {
@@ -902,6 +1157,7 @@ function drawPreview(curPosPentool) {
 let currentCurve;
 
 function getCurPos(event) {
+  // logFunctionName("getCurPos");
   const rect = canvasMain.getBoundingClientRect();
   let curPos = new Pair(
     event.clientX - rect.left, 
@@ -913,6 +1169,7 @@ function getCurPos(event) {
 }
 
 function createSegment(curve) {
+  logFunctionName("createSegment");
   if (curve.at(-1).isBase && curve.at(-2).isBase) {
     let seg = new Segment (
       [
@@ -920,6 +1177,7 @@ function createSegment(curve) {
         curve.at(-1).coords
       ],
       currentCurve,
+      true,
       true
     )
     currentProject.segments.push(seg)
@@ -941,7 +1199,9 @@ function createSegment(curve) {
         curve.at(-2 + off).coords,
         curve.at(-1 + off).coords
       ],
-      currentCurve
+      currentCurve,
+      true,
+      false
     )
     currentProject.segments.push(seg)
 
@@ -958,6 +1218,7 @@ function createSegment(curve) {
 }
 
 function addSegmentSoft(prev) {
+  logFunctionName("addSegmentSoft");
   if (prev && prev.isBase) {
     
     let vec = startPosPentool.subPO(curPosPentool);
@@ -993,6 +1254,7 @@ function addSegmentSoft(prev) {
 }
 
 function addSegmentHard(prev) {
+  logFunctionName("addSegmentHard");
   if (!prev) {
     currentPoint = addPoint(startPosPentool, true);
 
@@ -1017,26 +1279,44 @@ function addSegmentHard(prev) {
 }
 
 function addSegment() {
+  logFunctionName("addSegment");
   let prev;
   if (currentCurve)
     prev = currentCurve.at(-1);
   else 
     prev = undefined;
 
-  let dist = startPosPentool.dist(curPosPentool);
-  if (dist > 6 * coefC) {
-    addSegmentSoft(prev);
-  } else {
-    addSegmentHard(prev);
-  }
+  // if (!glueToggle.checked) {
+
+  // } else {
+    let dist = startPosPentool.dist(curPosPentool);
+    if (dist > 6 * coefC) {
+      addSegmentSoft(prev);
+    } else {
+      addSegmentHard(prev);
+    }
+  // }
+  
   drawCurve();
 }
 
+function addPointToSegement() {
+  currentPoint = addPoint(curPosPentool, true, true);
+  drawCurve();
+
+}
+
 canvasMainCurve.addEventListener("mouseup", () => {
+  logFunctionName("mouseup");
   if (!isSpacePressed && !isCtrlPressed ) {
-    addSegment();
+    if (!glueToggle.checked) {
+      addPointToSegement();
+      currentSegment = undefined;
+    } else {
+      addSegment();
+    }
   }
-  if (isCtrlPressed && currentPoint && !currentPoint.isBase ) {
+  else if (isCtrlPressed && currentPoint && !currentPoint.isBase ) {
     if (!lastCurrentPoint) {
       if (currentCurve.at(-1).isBase)
         lastCurrentPoint = currentCurve.at(-1);
@@ -1051,9 +1331,19 @@ canvasMainCurve.addEventListener("mouseup", () => {
   isDragging = false;
 });
 
+let leave = false;
+
 canvasMainCurve.addEventListener("mouseleave", () => {
   // if (isSpacePressed)
+  if (!glueToggle.checked) {
+    leave = true;
+ 
+  }
+  if (!glueToggle.checked && !isCtrlPressed && !isSpacePressed) {
+    deletePointGlued();
+  }
   isDragging = false;
+  if (!isCtrlPressed && !isSpacePressed)
   drawCurve();
 });
 
@@ -1061,6 +1351,8 @@ let curPos;
 let isDraggingPoint = false;
 let isCtrlPressed = false;
 let minUseDist = 6 * coefC;
+
+
 document.addEventListener("keydown", (event) => {
   if (event.ctrlKey) {  
     if (canvasMainCurve.style.pointerEvents === "none") return;
@@ -1068,6 +1360,12 @@ document.addEventListener("keydown", (event) => {
     if (isDragging) return;
     isCtrlPressed = true;
     drawCurve();
+
+    if (leave) return;
+    if (!glueToggle.checked && !isSpacePressed) {
+      deletePointGlued();
+
+    }
   }
 });
 
@@ -1075,15 +1373,28 @@ document.addEventListener("keyup", (event) => {
   if (event.code === "ControlLeft" || event.code === "ControlRight") {  
     if (canvasMainCurve.style.pointerEvents === "none") return;
     if (!isCtrlPressed) return;
-
     isCtrlPressed = false;
     isDraggingPoint = false;
-      
-    if (lastPosPentool && currentCurve) {
-      drawPreview(lastPosPentool);
+    if (leave) return;
+
+
+    if (!glueToggle.checked) {
+      if (currentCurve) {
+        addPoint(lastPosPentool, true, true);
+        currentCurve.at(-1).segment.reCalcPoints();
+        currentPoint = currentCurve.at(-1);
+        drawCurve();
+      }
+ 
+
     } else {
-      drawPoint(lastPosPentool);
+      if (lastPosPentool && currentCurve) {
+        drawPreview(lastPosPentool);
+      } else {
+        drawPoint(lastPosPentool);
+      }
     }
+
   }
 });
 
@@ -1135,6 +1446,7 @@ canvasMainCurve.addEventListener("wheel", (event) => {
 
 
 function reSizeSystem(isScaleDown, isCentred) { 
+  logFunctionName("reSizeSystem");
   let stepDiff = maxGridSize - minGridSize; 
   let stepDelta; 
   
@@ -1225,6 +1537,7 @@ function reSizeSystem(isScaleDown, isCentred) {
 }
 
 function calcCurNum(midlDrag) {
+
   let num;
   if (midlDrag < 0) 
     num = - Math.ceil(midlDrag / curGridSize) % 4 + 1;
@@ -1235,6 +1548,7 @@ function calcCurNum(midlDrag) {
 }
 
 function calcCurOff(midlDrag) {
+
   let off;
 
   if (midlDrag < 0) 
@@ -1249,6 +1563,7 @@ let gridOffset;
 let startNum;
 
 function drawSystemGrid() {
+
   сtxBuffer.lineWidth = 0.5 * coefC;
   сtxBuffer.strokeStyle = colors.lineGridNormal;
 
@@ -1489,3 +1804,64 @@ function roundAfterPoint(num, cntNum) {
   else 
     return Math.floor(num);
 }
+
+const pointInfoWindow = getElement("#point-info-window");
+const pointInfoCoords = getElement("#point-info-coords");
+let isPointInfoVisible = false;
+
+canvasMainCurve.addEventListener("contextmenu", (event) => {
+  event.preventDefault(); 
+
+  if (isPointInfoVisible) return; 
+
+  const curPosCursor = getCurPos(event);
+
+
+  findMinDistPoints(curPosCursor);
+
+  if (minDistPoints && minDistPoints.length > 0) {
+    const point = minDistPoints[0];
+    const coords = point.coords.cpy();
+    coords.roundAfterPoint(2);
+
+    pointInfoCoords.textContent = `X: ${coords.x}; Y: ${coords.y}`;
+
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    
+    const panelRect = pointInfoWindow.parentElement.getBoundingClientRect();
+
+    let left = event.clientX - panelRect.left + 2;
+    let top = event.clientY - panelRect.top + 2;
+
+    if (left + pointInfoWindow.offsetWidth > windowWidth) {
+      left = windowWidth - pointInfoWindow.offsetWidth - 5;
+    }
+    if (top + pointInfoWindow.offsetHeight > windowHeight) {
+      top = windowHeight - pointInfoWindow.offsetHeight - 5;
+    }
+
+    pointInfoWindow.style.left = `${left}px`;
+    pointInfoWindow.style.top = `${top}px`;
+    
+    pointInfoWindow.classList.remove("hidden");
+    pointInfoWindow.style.display = "block";
+
+    isPointInfoVisible = true;
+
+    canvasMainCurve.style.pointerEvents = "none";
+  }
+});
+
+document.addEventListener("mousedown", (event) => {
+
+  if (isPointInfoVisible) { 
+    if (pointInfoWindow.contains(event.target)) return;
+
+    pointInfoWindow.classList.add("hidden");
+    pointInfoWindow.style.display = "none";
+    isPointInfoVisible = false;
+
+    canvasMainCurve.style.pointerEvents = "auto";
+  }
+});

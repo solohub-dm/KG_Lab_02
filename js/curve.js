@@ -112,6 +112,7 @@ class Point {
   }
 
   createPointItem() {
+
     const pointItem = document.createElement("div");
     pointItem.classList.add("point-item");
 
@@ -129,7 +130,7 @@ class Point {
 
     let curCoords = this.coords.cpy();
     curCoords.roundAfterPoint(2);
-
+    
     const pX = document.createElement("p");
     pX.classList.add("text-item-info");
     const spanX = document.createElement("span");
@@ -159,8 +160,8 @@ class Point {
 
     reCalcSegment() {
         if (this.segment) {
-    
-            if (this.isBase) {
+      
+            if (this.isBase && this.segment[0]) {
                 if (this.segment[0]) {
                     this.segment[0].controls[this.segPos[0]] = this.coords;
                     this.segment[0].reCalcPoints();
@@ -175,14 +176,15 @@ class Point {
                     this.segment.reCalcPoints();
                 }
             }
-   
-        
         }
     }
 
     choosePoint() {
         if (!this.isBase) return;
         currentSegment = undefined;
+        currentMaxPolynoms.value = 0;
+        startPolynomInput.value = 0;
+        endPolynomInput.value = 0;
 
         let index = currentCurve.indexOf(this);
         choosePoint(currentCurve[index])
@@ -248,14 +250,47 @@ function addPoint(pair, isBase, isSoft = false, id = undefined) {
     )
 
     if (Array.isArray(currentCurve)) {
+        if (!glueToggle.checked) {
+            console.log("point", point);
+            let segment = undefined;
+            if (currentCurve.length === 1) { 
+                segment = new Segment(
+                    [
+                        currentCurve.at(-1).coords, 
+                        point.coords
+                    ], 
+                    currentCurve, 
+                    true, 
+                    false
+                );
+                segment.isLine = true;
+                currentCurve.at(-1).segment = segment;
+                currentCurve.at(-1).segPos = 0;
+                currentProject.segments.push(segment)
+
+            } else {
+                segment = currentCurve.at(-1).segment;
+                currentCurve.at(-1).isBase = false;
+                segment.controls.push(point.coords);
+                segment.isLine = false;
+            }
+            point.segment = currentCurve.at(-1).segment;
+            point.segPos = segment.controls.length - 1;
+        } 
         currentCurve.push(point);
     } else {
         if (!Array.isArray(currentProject.curves)) {
             currentProject.curves = [];
         }
         currentCurve = [point]; 
+        updateGlueToggle();
+
         currentProject.curves.push(currentCurve);  
     }
+
+    // if (glueToggle.checked === true) {
+    //     point.segment = new
+    // }
 
     return point;
 }
@@ -275,21 +310,38 @@ class SegPoint {
 
 class Segment {
     static maxDist = undefined;
+    static maxRecDepth = 16;
+
     constructor(
         controls,
         curve,
+        isGlued = true,
         isLine = false
     ) {
+        
         this.curve = curve;
         this.controls = controls;
         this.curMaxDist = Number.MAX_VALUE;
         this.isLine = isLine;
+        this.isGlued = isGlued;
+        this.MB = undefined;
+        this.precomputeBezierMatrix();
+
         if (!isLine) {
-            this.points = [
-                new SegPoint(controls[0], 0),
-                this.calcSegPoint(0.5),
-                new SegPoint(controls[3], 1)
-            ];
+            // if (!glueToggle.checked) {
+                this.points = [
+                    new SegPoint(controls[0], 0),
+                    this.calcSegPoint(0.5),
+                    new SegPoint(controls[this.controls.length - 1], 1)
+                ];
+            // } else {
+            //     this.points = [
+            //         new SegPoint(controls[0], 0),
+            //         this.calcSegPoint(0.5),
+            //         new SegPoint(controls[3], 1)
+            //     ];
+            // }
+            
             this.tms = Number.MAX_VALUE;
             this.maxAngle = Math.PI / 36;
             this.calcPoints();
@@ -297,8 +349,11 @@ class Segment {
             this.xFind = undefined;
         } 
     }
+
+    getPoints
     
     draw(isActive = 0) {
+        if (this.controls.length < 2) return;
         ctxCur.lineWidth = 2 * coefC;
 
         // if (isActive === 0) ctxCur.lineWidth = 2 * coefC;
@@ -307,7 +362,7 @@ class Segment {
         if      (isActive === 0)  ctxCur.strokeStyle = colors.nonActiveCurve;
         else if (isActive === 1)  ctxCur.strokeStyle = colors.activeCurve; 
         else                      ctxCur.strokeStyle = colors.activeSegment;
-            
+
         if (!this.isLine) {
             let coef = this.setMaxDist(Segment.maxDist);        
 
@@ -347,18 +402,21 @@ class Segment {
         if (this.isLine) return;
 
         this.tms = Number.MAX_VALUE;  
+        this.precomputeBezierMatrix();
+
         this.points = [
             new SegPoint(this.controls[0], 0),
             this.calcSegPoint(0.5),
-            new SegPoint(this.controls[3], 1)
+            new SegPoint(this.controls[this.controls.length - 1], 1)
         ];
         this.curMaxDist = Segment.maxDist;  
-
         this.calcPoints();
     }
 
     calcPoints() {
         if (this.isLine) return;
+
+        this.precomputeBezierMatrix();
 
         let points = this.points;
         for (let i = 0; i < points.length - 1; i++) {
@@ -377,43 +435,49 @@ class Segment {
         }
     }
 
-    recursiveCalcMidlD(sp1, sp2) {
+
+
+    recursiveCalcMidlD(sp1, sp2, depth = 0) {
+        if (depth >= Segment.maxRecDepth) return [];
+    
         let tm = (sp1.t + sp2.t) / 2;
         let spm = this.calcSegPoint(tm);
-
+    
         let d1 = spm.dist(sp1) > this.curMaxDist;
         let d2 = spm.dist(sp2) > this.curMaxDist;
-
+    
         let temp = [];
-        if (d1) temp.push(...this.recursiveCalcMidlD(sp1, spm));
+        if (d1) temp.push(...this.recursiveCalcMidlD(sp1, spm, depth + 1));
         temp.push(spm);
-        if (d2) temp.push(...this.recursiveCalcMidlD(spm, sp2));
-
+        if (d2) temp.push(...this.recursiveCalcMidlD(spm, sp2, depth + 1));
+    
         if (!d1 && !d2) {
             let ts = tm - sp1.t;
             if (ts < this.tms) this.tms = ts;
         }
         return temp;
     }
+    
 
-    recursiveCalcMidlT(sp1, sp2) {
-        
+    recursiveCalcMidlT(sp1, sp2, depth = 0) {
+        if (depth >= Segment.maxRecDepth) return [];
+    
         let tm = (sp1.t + sp2.t) / 2;
         let spm = this.calcSegPoint(tm);
-
+    
         let td = tm - sp1.t;
         if (td > this.tms) {
             let temp = [];
-            temp.push(...this.recursiveCalcMidlT(sp1, spm));
+            temp.push(...this.recursiveCalcMidlT(sp1, spm, depth + 1));
             temp.push(spm);
-            temp.push(...this.recursiveCalcMidlT(spm, sp2));
+            temp.push(...this.recursiveCalcMidlT(spm, sp2, depth + 1));
             return temp;
         } else return [spm];
-
     }
+    
 
     calcMap(xStep, xPres, prevStart) {   
-        console.log("calcMap");
+
         this.xPres = xPres;
 
         let map = new Map();
@@ -490,19 +554,146 @@ class Segment {
                 }
             }
 
-            
-
-
             smallestDigit /= 10;
             xNext = Math.floor(this.points[0].pair.x / smallestDigit) * smallestDigit;
             index = 0;
             xDir = this.points[0].pair.x < this.points[1].pair.x;
 
-            console.log(map.size); 
         console.log("map curve", map); 
 
         return map;
     }
+
+    calcRecXPres(sp1, sp2, depth = 0) {
+        if (depth >= Segment.maxRecDepth) return sp1;
+    
+        let tm = (sp1.t + sp2.t) / 2;
+        let spm = this.calcSegPoint(tm);
+    
+        let s = Math.abs(spm.pair.x - this.xFind) < this.xPres;
+    
+        if (s) 
+            return spm;
+        else {
+            if (spm.pair.x > this.xFind) 
+                return this.calcRecXPres(sp1, spm, depth + 1);
+            else 
+                return this.calcRecXPres(spm, sp2, depth + 1);
+        }
+    }
+    
+
+    calcSegPoint(t) {
+        switch (selectedMethod) {
+            case MethodType.PARAMETRIC:
+                return this.calcBezierPointPoly(t);
+            case MethodType.RECURSIVE:
+                return this.calcBezierPointRecursive(t); 
+            case MethodType.MATRIX:
+                return this.calcBezierPointMatrix(t); 
+            default:    
+                return null;
+        }
+    }
+
+    // Поліноміальний метод для довільної кількості точок
+    calcBezierPointPoly(t) {
+        let n = this.controls.length - 1;
+        let x = 0, y = 0;
+
+        for (let i = 0; i <= n; i++) {
+            let binomial = this.binomialCoeff(n, i);
+            let coeff = binomial * Math.pow(1 - t, n - i) * Math.pow(t, i);
+            x += coeff * this.controls[i].x;
+            y += coeff * this.controls[i].y;
+        }
+
+        return new SegPoint(new Pair(x, y), t);
+    }
+
+    // Рекурсивний метод де Кастельжо
+    calcBezierPointRecursive(t, points = this.controls) {
+        if (points.length === 1) {
+            return new SegPoint(new Pair(points[0].x, points[0].y), t);
+        }
+
+        let newPoints = [];
+        for (let i = 0; i < points.length - 1; i++) {
+            let x = (1 - t) * points[i].x + t * points[i + 1].x;
+            let y = (1 - t) * points[i].y + t * points[i + 1].y;
+            newPoints.push(new Pair(x, y));
+        }
+
+        return this.calcBezierPointRecursive(t, newPoints);
+    }
+
+    // Попереднє обчислення матриці Безьє для довільного n
+    precomputeBezierMatrix() {
+        const n = this.controls.length - 1;
+        this.MB = [];
+
+        for (let i = 0; i <= n; i++) {
+            let row = [];
+            for (let j = 0; j <= n; j++) {
+                let sign = (i + j) % 2 === 0 ? 1 : -1;
+                let value = sign * this.binomialCoeff(n, j) * this.binomialCoeff(j, i);
+                row.push(value);
+            }
+            this.MB.push(row.reverse());
+        }
+    }
+
+    // Формування вектора T для довільного n
+    buildTVector(t) {
+        const n = this.controls.length - 1;
+        let T = [];
+        for (let i = n; i >= 0; i--) {
+            T.push(Math.pow(t, i));
+        }
+        return T;
+    }
+
+    // Основна функція обчислення точки
+    calcBezierPointMatrix(t) {
+        const T = this.buildTVector(t);
+        const n = this.controls.length - 1;
+
+        // Обчислення коефіцієнтів: T * MB
+        let coeffs = new Array(n + 1).fill(0);
+        for (let i = 0; i <= n; i++) {
+            for (let j = 0; j <= n; j++) {
+                coeffs[i] += T[j] * this.MB[j][i];
+            }
+        }
+
+        // Комбінація контрольних точок з коефіцієнтами
+        let x = 0, y = 0;
+        for (let i = 0; i <= n; i++) {
+            x += coeffs[i] * this.controls[i].x;
+            y += coeffs[i] * this.controls[i].y;
+        }
+
+        return new SegPoint(new Pair(x, y), t);
+    }
+
+    // Допоміжна функція: обчислення біноміального коефіцієнта
+    binomialCoeff(n, k) {
+        if (k < 0 || k > n) return 0;
+        if (k === 0 || k === n) return 1;
+
+        let res = 1;
+        for (let i = 0; i < k; i++) {
+            res *= (n - i);
+            res /= (i + 1);
+        }
+        return res;
+    }
+
+}
+
+let recStat = 0;
+
+
 
     // calcMap(xStep, xPres) {   
 
@@ -567,45 +758,3 @@ class Segment {
     //     }
     //     return map;
     // }
-
-    calcRecXPres (sp1, sp2) {
-        recStat++;
-        if (recStat > 20) return sp1;
-
-        let tm = (sp1.t + sp2.t) / 2;
-        let spm = this.calcSegPoint(tm);
-
-        let s = Math.abs(spm.pair.x - this.xFind) < this.xPres;
-
-
-        if (s) 
-            return spm;
-        else {
-            if (spm.pair.x > this.xFind) 
-                return this.calcRecXPres(sp1, spm);
-            else 
-                return this.calcRecXPres(spm, sp2);
-        }
-
-    }
-
-    calcSegPoint(t) { 
-        let [P0, P1, P2, P3] = this.controls;
-
-        let point = new Pair(
-            Math.pow(1 - t, 3) * P0.x +
-            3 * Math.pow(1 - t, 2) * t * P1.x +
-            3 * (1 - t) * Math.pow(t, 2) * P2.x +
-            Math.pow(t, 3) * P3.x,
-
-            Math.pow(1 - t, 3) * P0.y +
-            3 * Math.pow(1 - t, 2) * t * P1.y +
-            3 * (1 - t) * Math.pow(t, 2) * P2.y +
-            Math.pow(t, 3) * P3.y
-        );
-
-        return new SegPoint(point, t);
-    }
-}
-
-let recStat = 0;

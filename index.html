@@ -37,19 +37,23 @@
                         <span class="tooltip">Обрати метод побудови</span>
                     </div>
                     <div class="control-button side" id="control-button-recursive">
-                        <img src="./img/recursive.png" alt="open pentool" class="icon-button">
+                        <img src="./img/recursive.png" alt="open recursive" class="icon-button">
                         <span class="tooltip">Відтворити рекурсивну побудову</span>
                     </div>
                     <div class="control-button side" id="control-button-points">
-                        <img src="./img/points.png" alt="open pentool" class="icon-button">
+                        <img src="./img/points.png" alt="open points" class="icon-button">
                         <span class="tooltip">Проаналізувати згладжування</span>
                     </div>
                     <div class="control-button side" id="control-button-polynom">
-                        <img src="./img/polynom.png" alt="open pentool" class="icon-button">
+                        <img src="./img/polynom.png" alt="open polynom" class="icon-button">
                         <span class="tooltip">Обчислити поліноми</span>
                     </div>
+                    <div class="control-button side" id="control-button-matrix">
+                        <img src="./img/matrix.png" alt="open matrix" class="icon-button">
+                        <span class="tooltip">Обчислити коефіцієнти матриці</span>
+                    </div>
                     <div class="control-button side" id="control-button-pallete">
-                        <img src="./img/pallete.png" alt="open pentool" class="icon-button">
+                        <img src="./img/pallete.png" alt="open pallete" class="icon-button">
                         <span class="tooltip">Змінити кольори відображення</span>
                     </div>
                 </div>
@@ -60,8 +64,9 @@
             </div>
         </div>
 
-        <div class="control-panel">
-
+        <div class="control-panel" id="control-panel">
+           
+         
             <div class="control-main" id="control-main-info">
                 <div class="control-title">
                     <p class="text-button">Довідка</p>
@@ -202,7 +207,7 @@
                 <div class="control-title">
                     <p class="text-button">Меню</p>
                 </div>
-                <div class="control-body" id="control-body-menu">
+                <div class="control-body scroll" id="control-body-menu">
                     <div class="menu-item">
                         <p class="text-item-head">Метод побудови</p>
                         <p class="text-item-body">Вибір методу побудови кривої Безьє (параметричний, рекурсивний, матричний).</p>
@@ -218,8 +223,12 @@
                     </div>
                     <div class="menu-item">
                         <p class="text-item-head">Обчислення полінома</p>
-                        <p class="text-item-body">Обчислення значень поліномів Берштейна із заданим користувачем 
+                        <p class="text-item-body">Обчислення значень обраних поліномів Берштейна із заданим користувачем 
                             кроком точок для обраног сегмента кривої.</p>
+                    </div>
+                    <div class="menu-item">
+                        <p class="text-item-head">Обчислення матриці</p>
+                        <p class="text-item-body">Обчислення значень обраних коефіцієнтів матриці (матричного методу побудови кривої).</p>
                     </div>
                     <div class="menu-item">
                         <p class="text-item-head">Налаштування палітри</p>
@@ -263,7 +272,7 @@
                 <div class="control-title">
                     <p class="text-button">Рекурсивна побудова</p>
                 </div>
-                <br>
+                <!-- <br> -->
                 <div class="control-body">
                 <p class="text-item-info">t - значення для поточного сегмента</p>
                 <p class="text-item-info">s - номер поточного сегмента</p>
@@ -273,14 +282,14 @@
                     <input type="number" name="step-t-size-recursive" id="step-t-size-recursive">                    
                 </div>
                 <div class="line-block">
-                    <label class="text-item-info" for="time-recursive">Час анімації одного кроку:</label>
+                    <label class="text-item-info" for="time-recursive">Час анімації сегмента:</label>
                     <input type="number" name="time-recursive" id="time-recursive">                    
                 </div>
                 <div class="control-button control" id="control-button-start-recursive">
-                    <p class="text-button">Запустити</p>
-                    <img src="./img/start.png" alt="start animation" class="icon-button">
+                    <p class="text-button" id="control-button-start-recursive-text">Запустити</p>
+                    <img src="./img/start.png" alt="start animation" class="icon-button" id="control-button-start-recursive-icon">
                 </div>
-                <br>
+                <div class="br"></div>
                 <p class="text-progress">t: <span id="text-cur-t-value">0.00</span></p>
                 <div class="progress-bar" id="progress-bar-t">
                     <div class="progress" id="progress-t"></div>
@@ -294,37 +303,106 @@
 
             <div class="control-main" id="control-main-polynom">
                 <div class="control-title">
-                    <p class="text-button">Обчислення полінома</p>
+                    <p class="text-button">Обчислення поліномів</p>
                 </div>
                 <div class="control-body">
 
                 <p class="error-message" id="error-message-polynom"></p>
                 <div class="line-block">
-                    <label class="text-item-info" for="step-t-size-polynom">Крок t:</label>
+                    <label class="text-item-info" for="step-t-size-polynom">Крок параметра t:</label>
                     <input type="number" name="step-t-size-polynom" id="step-t-size-polynom">                    
                 </div>
                 <div class="line-block">
-                    <label class="text-item-info" for="time-polynom">Час анімції одного кроку:</label>
+                    <label class="text-item-info" for="time-polynom">Час анімації сегмента:</label>
                     <input type="number" name="time-polynom" id="time-polynom">                    
                 </div>
+                <!-- <div class="line-block">
+                    <label class="text-item-info" for="start-polynom">Початковий номер полінома:</label>
+                    <input type="number" name="start-polynom" id="start-polynom">
+                </div>
+                <div class="line-block">
+                    <label class="text-item-info" for="end-polynom">Кінцевий номер полінома:</label>
+                    <input type="number" name="end-polynom" id="end-polynom">
+                </div> -->
 
+                <div class="line-block" id="line-block-polynom">
+                    <label class="text-item-info bold" for="start-polynom">Поліноми:</label>
+
+                    <label class="text-item-info" for="start-polynom"> Від: </label>
+                    <input type="number" name="start-polynom" id="start-polynom">
+        
+                    <label class="text-item-info" for="end-polynom"> До: </label>
+                    <input type="number" name="end-polynom" id="end-polynom">
+                </div>
                 <div class="control-button control" id="control-button-calc-polynom">
-                    <p class="text-button">Обчислити</p>
-                    <img src="./img/start.png" alt="start animation" class="icon-button">
+                    <p class="text-button" id="control-button-calc-polynom-text">Обчислити</p>
+                    <img src="./img/start.png" alt="start animation" class="icon-button" id="control-button-calc-polynom-icon">
                 </div>
                 <br>
                 <div class="scroll" id="table-panel-polynom">
                     <table class="table-data" id="table-polynom">
                         <thead>
-                            <tr>
+                            <!-- <tr>
                                 <th>t</th>
                                 <th>b<sub>3,0</sub></th>
                                 <th>b<sub>3,1</sub></th>
                                 <th>b<sub>3,2</sub></th>
                                 <th>b<sub>3,3</sub></th>
-                            </tr>
+                            </tr> -->
                         </thead>
                         <tbody id="table-polynom-body">
+    
+                        </tbody>
+                    </table>
+                </div>
+                
+                </div>
+            </div>
+
+            <div class="control-main" id="control-main-matrix">
+                <div class="control-title">
+                    <p class="text-button">Обчислення матриці</p>
+                </div>
+                <div class="control-body">
+                <!-- <p class="text-item-info">Обчислення коефіцієнтів матриці для введенної "підматриці", заданої початковими та кінцевими рядками та стовпцями.</p> -->
+
+                <p class="error-message" id="error-message-matrix"></p>
+                <div class="line-block">
+                    <label class="text-item-info bold" for="start-matrix-column">Стовпці:</label>
+         
+                    <label class="text-item-info dark" for="start-matrix-column"> Від: </label>
+                    <input type="number" name="start-matrix-column" id="start-matrix-column">
+    
+                    <label class="text-item-info dark" for="end-matrix-column"> До: </label>
+                    <input type="number" name="end-matrix-column" id="end-matrix-column">
+ 
+                </div>
+                <div class="line-block">
+                    <label class="text-item-info bold" for="end-matrix-rows">Рядки:</label>
+
+                    <label class="text-item-info dark" for="start-matrix-rows"> Від: </label>
+                    <input type="number" name="start-matrix-rows" id="start-matrix-rows">
+
+                    <label class="text-item-info dark" for="end-matrix-rows"> До: </label>
+                    <input type="number" name="end-matrix-rows" id="end-matrix-rows">
+                </div>
+                <div class="control-button control" id="control-button-calc-matrix">
+                    <p class="text-button">Обчислити</p>
+                    <img src="./img/start.png" alt="start animation" class="icon-button">
+                </div>
+                <br>
+                <div class="scroll" id="table-panel-matrix">
+                    <table class="table-data" id="table-matrix">
+                        <thead>
+                            <!-- <tr>
+                                <th>t</th>
+                                <th>b<sub>3,0</sub></th>
+                                <th>b<sub>3,1</sub></th>
+                                <th>b<sub>3,2</sub></th>
+                                <th>b<sub>3,3</sub></th>
+                            </tr> -->
+                        </thead>
+                        <tbody id="table-matrix-body">
     
                         </tbody>
                     </table>
@@ -415,6 +493,8 @@
                 </div>
             </div>
 
+            <div class="control-panel-resize" id="control-panel-resize"></div>
+
         </div>
   
 
@@ -422,13 +502,23 @@
             <div id="canvas-lock">
                 <img src="./img/lock.png" alt="Locked" />
             </div>
-
+            <div id="canvas-glue" class="canvas-overlay">
+                <span class="glue-label">Склеювання</span>
+                <label class="switch">
+                  <input type="checkbox" id="glue-toggle">
+                  <span class="slider" id="slider"></span>
+                </label>
+              </div>
             <canvas class="canvas-main" id="canvas-main">
 
             </canvas>
             <canvas class="canvas-main" id="canvas-main-curve">
 
             </canvas>
+
+            <div id="point-info-window" class="hidden">
+                <p id="point-info-coords"></p>
+            </div>
         </div>
     </div>
 </body>
